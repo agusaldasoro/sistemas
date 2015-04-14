@@ -46,7 +46,7 @@ void TaskConsola(int pid, vector<int> params){
 }
 
 void TaskBatch(int pid, vector<int> params){
-	int total_cpu = params[0];
+	int total_cpu = params[0]; 
 	int cant_bloqueos = params[1];
 	vector<int> azar(cant_bloqueos);
 //	int total_aux = total_cpu;
@@ -59,9 +59,9 @@ void TaskBatch(int pid, vector<int> params){
 		if(azar[i] == j){
 			uso_IO(pid, 1);
 			i++;
-			j++;
 		}
-		uso_CPU(pid, 1);
+		else
+			uso_CPU(pid, 1);
 		j++;
 	}
 	while(j<total_cpu){
