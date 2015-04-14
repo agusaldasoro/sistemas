@@ -1,7 +1,2 @@
-TaskConsola 2 1 4
-TaskCPU 8
-@1
-TaskCPU 8
-@30
-TaskCPU 4
-
+#TaskConsola 4 2 3
+TaskBatch 10 4
