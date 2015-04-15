@@ -15,13 +15,14 @@
 %\usepackage{listings}
 %\lstset{language=C}
 
-
+\usepackage[bookmarks = true, colorlinks=true, linkcolor = black, citecolor = black, menucolor = black, urlcolor = blue]{hyperref} 
 \input{codesnippet}
 \input{page.layout}
 % \setcounter{secnumdepth}{2}
 \usepackage{underscore}
 \usepackage{caratula}
-\usepackage{url}
+%\usepackage{url}
+
 
 
 % ******************************************************** %
@@ -45,12 +46,13 @@
 
 
 \thispagestyle{empty}
-\materia{Organización del Computador II}
-\submateria{Segundo Cuatrimestre de 2014}
-\titulo{Trabajo Práctico II}
-\subtitulo{subtitulo del trabajo}
-\integrante{Nombre}{XXX/XX}{mail}
-\integrante{Nombre}{XXX/XX}{mail}
+\materia{Sistemas Operativos}
+\submateria{Primer Cuatrimestre 2015}
+\titulo{Trabajo Práctico I}
+\subtitulo{Scheduling}
+\integrante{Aldasoro Agustina}{86/13}{agusaldasoro@gmail.com}
+\integrante{More \'Angel}{XXX/XX}{mail}
+\integrante{Zimenspitz Ezequiel}{155/13}{ezeqzim@gmail.com}
 
 \maketitle
 \newpage
@@ -69,45 +71,70 @@ En el presente trabajo se describe la problemática de ...
 
 %\normalsize
 \newpage
+\section{Parte I}
 
-\section{Objetivos generales}
+\subsection{Ejercicio 1: TaskConsola}
+Programar un tipo de tarea TaskConsola, que simular\'a una tarea interactiva.
 
-El objetivo de este Trabajo Práctico es ...
-
-
-\section{Contexto}
-
-\begin{figure}
-  \begin{center}
-	\includegraphics[scale=0.66]{imagenes/logouba.jpg}
-	\caption{Descripcion de la figura}
-	\label{nombreparareferenciar}
-  \end{center}
-\end{figure}
-
-
-\paragraph{\textbf{Titulo del parrafo} } Bla bla bla bla.
-Esto se muestra en la figura~\ref{nombreparareferenciar}.
+La tarea debe realizar n llamadas bloqueantes, cada una de una duraci\'on al azar1 entre bmin y bmax (inclusive). La tarea debe recibir tres par\'ametros: n, bmin y bmax (en ese orden) que ser\'an interpretados como los tres elementos del vector de enteros que recibe la funci\'on.
 
 
 
-\begin{codesnippet}
-\begin{verbatim}
-
-struct Pepe {
-
-    ...
-
-};
-
-\end{verbatim}
-\end{codesnippet}
+\subsection{Ejercicio 2: Ejecuci\'on de tres tareas}
+Ejercicio 2 Escribir un lote de 3 tareas distintas: una intensiva en CPU y las otras dos de tipo interactivo (TaskConsola). Ejecutar y graficar la simulaci\'on usando el algoritmo FCFS para 1, 2 y 3 n\'ucleos.
 
 
-%\section{Enunciado y solucion} 
-%\input{enunciado}
 
-\section{Conclusiones y trabajo futuro}
+\section{Parte II}
+
+
+\subsection{Ejercicio 3: Scheduler Round-Robin}
+Completar la implementaci\'on del scheduler Round-Robin implementando los m\'etodos de la clase SchedRR en los archivos sched rr.cpp y sched rr.h. 
+La implementaci\'on recibe como primer par\'ametro la cantidad de n\'ucleos y a continuaci\'on los valores de sus respectivos quantums. 
+Debe utilizar una \'unica cola global, permitiendo as\'i la migraci\'on de procesos entre n\'ucleos.
+ 
+ \subsection{Ejercicio 4: Ejecuci\'on de lotes de tareas}
+ 
+Dise\~nar uno o m\'as lotes de tareas para ejecutar con el algoritmo del ejercicio anterior. Graficar las simulaciones y comentarlas, justificando brevemente por qu\'e el comportamiento observado es efectivamente el esperable de un algoritmo Round-Robin.
+
+ \subsection{Ejercicio 5: Scheduling algorithms for multiprogramming in a hard-real-time environment}
+ 
+A partir del art\'iculo Liu, Chung Laung, and James W. Layland. Scheduling algorithms for multiprogramming in a hard-real-time environment. Journal of the ACM (JACM) 20.1 (1973): 46-61.\\
+
+
+1. Responda:
+
+a) ¿Qu\'e problema est\'an intentando resolver los autores?
+
+b) ¿Por qu\'e introducen el algoritmo de la secci\'on 7? ¿Qu\'e problema buscan resolver con esto?
+
+c) Explicar coloquialmente el significado del teorema 7.
+
+2. Dise \~nar e implementar un scheduler basado en prioridades fijas y otro en prioridades din\'amicas. Para eso complete las clases SchedFixed y SchedDynamic que se encuentran en los archivos sched fixed.[h|cpp] y sched dynamic.[h|cpp] respectivamente.
+
+
+
+
+\section{Parte III}
+
+
+ \subsection{Ejercicio 6: TaskBatch}
+Programar un tipo de tarea TaskBatch que reciba dos par\'ametros: total cpu y cant bloqueos. Una tarea de este tipo deber\'a realizar cant bloqueos llamadas bloqueantes, en momentos elegidos pseudoaleatoriamente. En cada tal ocasi\'on, la tarea deber\'a permanecer bloqueada durante exactamente un (1) ciclo de reloj. El tiempo de CPU total que utilice una
+tarea TaskBatch deber\'a ser de total cpu ciclos de reloj (incluyendo el tiempo utilizado para lanzar las llamadas bloqueantes; no as\'i el tiempo en que la tarea permanezca bloqueada).
+
+ \subsection{Ejercicio 7: Ejecuci\'on lote de tareas}
+Elegir al menos dos m\'etricas diferentes, definirlas y explicar la sem\'antica de su definici\'on. Dise\~nar un lote de tareas TaskBatch, todas ellas con igual uso de CPU, pero con diversas cantidades de bloqueos. Simular este lote utilizando el algoritmo SchedRR y una variedad apropiada de valores de quantum. Mantener fijo en un (1) ciclo de reloj el costo de cambio de contexto y dos (2) ciclos el de migraci\'on. Deben variar la cantidad de n\'ucleos de procesamiento. Para cada una de las m\'etricas elegidas, concluir cu\'al es el valor \'optimo de quantum a los efectos de dicha m\'etrica.
+
+ \subsection{Ejercicio 8: Scheduler Round-Robin modificado}
+Implemente un scheduler Round-Robin que no permita la migraci\'on de procesos entre n\'ucleos (SchedRR2). La asignaci\'on de CPU se debe realizar en el momento en que se produce la carga de un proceso (load). El n\'ucleo correspondiente a un nuevo proceso ser\'a aquel con menor cantidad de procesos activos totales (RUNNING + BLOCKED + READY). Dise\~ne y realice un conjunto de experimentos que permita evaluar comparativamente las dos implementaciones de Round-Robin.
+
+ \subsection{Ejercicio 9:  Ejecuci\'on lote de tareas}
+Dise\~nar un lote de tareas cuyo scheduling no sea factible para el algoritmo de prioridades fijas pero s\'i para el algoritmo de prioridades din\'amicas.
+
+ \subsection{Ejercicio 10:  Ejecuci\'on lote de tareas}
+Dise\~nar un lote de tareas, cuyo scheduling s\'i sea factible con el algoritmo de prioridades fijas, donde se observe un mejor uso del CPU por parte del algoritmo de prioridades din\'amicas.
+
+
 
 
 \end{document}
