@@ -36,26 +36,30 @@ void TaskConBloqueo(int pid, vector<int> params) {
 }
 
 void TaskConsola(int pid, vector<int> params){
+//Recibo cantidad de llamadas bloqueantes, tiempo minimo de bloqueo y tiempo maximo
 	int bloqueantes = params[0];
 	int minimo = params[1];
 	int maximo = params[2];
 	int azar;
+//Por cada bloqueo que tiene que hacer, tomo un numero random
+//aplico % (maximo - minimo + 1) (numero entre 0 y maximo-minimo)
+//le sumo minimo (numero entre minimo y maximo)
 	for (int i = 0; i < bloqueantes; ++i){
-		azar = rand() % maximo + minimo;
+		azar = rand() % (maximo - minimo + 1) + minimo;
 		uso_IO(pid, azar);
 	}
 }
 
 void TaskBatch(int pid, vector<int> params){
+//Recibo tiempo total de ejecucion (incluyendo llamada bloqueante) y cantidad de bloqueos a realizar
 	int total_cpu = params[0];
 	int cant_bloqueos = params[1];
 	vector<int> azar(cant_bloqueos);
-	for (int i = 0; i < cant_bloqueos; ++i){
-		azar[i] = -1;
-	}
+//Elijo cant_bloqueos numeros al azar entre 0 y total_cpu-1
 	for (int i = 0; i < cant_bloqueos; ++i){
 		int random = rand() % total_cpu;
 		azar[i] = random;
+//Si ya lo habia elegido, elijo otro;
 		for (int j = 0; j < i; ++j){
 			if (azar[j] == random){
 				j = i;
@@ -63,13 +67,11 @@ void TaskBatch(int pid, vector<int> params){
 			}
 		}
 	}
+//Los ordeno para trabajarlos secuencialmente
 	sort(azar.begin(), azar.end());
-	for (int i = 0; i < cant_bloqueos; ++i)
-	{
-		cout << "azar[" << i << "]: " << azar[i] << endl; 
-	}
 	int i=0, j=0;
-	while(i < cant_bloqueos && j < total_cpu){
+//Mientras tenga bloqueos restantes, si estoy en el momento de bloquear, bloqueo, sino, hago uso intensivo del cpu
+	while(i < cant_bloqueos){
 		if(azar[i] == j){
 			uso_IO(pid, 1);
 			i++;
@@ -78,10 +80,8 @@ void TaskBatch(int pid, vector<int> params){
 			uso_CPU(pid, 1);
 		j++;
 	}
-	while(j<total_cpu){
-		uso_CPU(pid, 1);
-		j++;
-	}
+//El tiempo restante lo usa el cpu
+	uso_CPU(pid, total_cpu-j);
 }
 
 void tasks_init(void) {
@@ -91,7 +91,7 @@ void tasks_init(void) {
 	register_task(TaskCPU, 1);
 	register_task(TaskIO, 2);
 	register_task(TaskAlterno, -1);
-	register_task(TaskConBloqueo,3);
-	register_task(TaskConsola,3);
-	register_task(TaskBatch,2);
+	register_task(TaskConBloqueo, 3);
+	register_task(TaskConsola, 3);
+	register_task(TaskBatch, 2);
 }
