@@ -1,6 +1,7 @@
 #include "tasks.h"
 #include <iostream>
 #include <stdlib.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -46,15 +47,28 @@ void TaskConsola(int pid, vector<int> params){
 }
 
 void TaskBatch(int pid, vector<int> params){
-	int total_cpu = params[0]; 
+	int total_cpu = params[0];
 	int cant_bloqueos = params[1];
 	vector<int> azar(cant_bloqueos);
-//	int total_aux = total_cpu;
-/*	for (int i = 0; i < cant_bloqueos; ++i){
-		total_aux-=azar[i];
-		azar[i] = rand() % total_aux + azar[i];
+	for (int i = 0; i < cant_bloqueos; ++i){
+		azar[i] = -1;
 	}
-*/	int i=0, j=0;
+	for (int i = 0; i < cant_bloqueos; ++i){
+		int random = rand() % total_cpu;
+		azar[i] = random;
+		for (int j = 0; j < i; ++j){
+			if (azar[j] == random){
+				j = i;
+				i--;
+			}
+		}
+	}
+	sort(azar.begin(), azar.end());
+	for (int i = 0; i < cant_bloqueos; ++i)
+	{
+		cout << "azar[" << i << "]: " << azar[i] << endl; 
+	}
+	int i=0, j=0;
 	while(i < cant_bloqueos && j < total_cpu){
 		if(azar[i] == j){
 			uso_IO(pid, 1);
