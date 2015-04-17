@@ -1,0 +1,3 @@
+$ ./simusched ej2/lote2.tsk 1 1 1 SchedFCFS | ./graphsched.py >> ej2/1core.png
+$ ./simusched ej2/lote2.tsk 2 1 1 SchedFCFS | ./graphsched.py >> ej2/2core.png
+$ ./simusched ej2/lote2.tsk 3 1 1 SchedFCFS | ./graphsched.py >> ej2/3core.png
