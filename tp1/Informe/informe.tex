@@ -51,7 +51,7 @@
 \titulo{Trabajo Práctico I}
 \subtitulo{Scheduling}
 \integrante{Aldasoro Agustina}{86/13}{agusaldasoro@gmail.com}
-\integrante{More \'Angel}{XXX/XX}{mail}
+\integrante{More \'Angel}{931/12}{angel_21_fer@hotmail.com}
 \integrante{Zimenspitz Ezequiel}{155/13}{ezeqzim@gmail.com}
 
 \maketitle
@@ -62,6 +62,7 @@
 \begin{abstract}
 En el presente trabajo se describe la problemática de ...
 \end{abstract}
+\newpage
 
 \thispagestyle{empty}
 \vspace{3cm}
@@ -83,7 +84,8 @@ Al momento de ejecutar la tarea \emph{TaskConsola}, lo que realiza nuestro algor
 \subsection{Ejercicio 2: Ejecuci\'on de tres tareas}
 \textit{Escribir un lote de 3 tareas distintas: una intensiva en CPU y las otras dos de tipo interactivo (TaskConsola). Ejecutar y graficar la simulaci\'on usando el algoritmo FCFS para 1, 2 y 3 n\'ucleos.}\\
 
-Las tareas utilizadas en el lote de tareas fueron las siguientes:
+Para observar el comportamiento de un lote de tareas en un scheduler basado en la técnica FCFS
+(\textit{First Came, First Served}). Donde cada una se ejecuta en el orden en el que se encuentran $ready$. Se ejecutaron tres tareas distintas. Dos se corresponden el tipo de tarea $TaskConsola$ y la otra solo haciendo uso intensivo del CPU (sin bloqueo). Las tareas utilizadas las siguientes:
 	\begin{codesnippet}
 	\begin{verbatim}
 TaskConsola 4 2 7
@@ -92,8 +94,8 @@ TaskCPU 3
 TaskConsola 5 1 10
 	\end{verbatim}
 	\end{codesnippet}
-
-Para los tres casos se consider\'o un costo de una unidad para cambiar de contexto y para cambiar un proceso de n\'ucleo de procesamiento.\\
+	
+Además para observar como varía el tiempo total (si es que lo hace), se simuló la ejecución para 1, 2 y 3 cores. Para los tres casos se consider\'o un costo de una unidad para cambiar de contexto y para cambiar un proceso de n\'ucleo de procesamiento.\\
 
 Los diagramas de Gantt obtenidos fueron los siguientes:\\
 
@@ -121,9 +123,13 @@ Los diagramas de Gantt obtenidos fueron los siguientes:\\
    \end{center}
  \end{figure} 
 
-\textcolor{red}{Aca habria que hablar un poco :D}
+\textcolor{red}{Aca habria que hablar un poco y revisar esto: :D}
 
+A partir de los resultados obtenidos en los gráficos anteriores. Podemos observar que el tiempo total varía de acuerdo al número de cores con los que se este simulando. A medida que se incrementa el número el tiempo total disminuye. No solo influyó este factor sino que también, el hecho de que estamos trabajando con un modelo sin desalojo.  
+Al trabajar con un solo core debemos esperar que una tarea finalice para que la próxima pueda ser ejecutada. Es decir, se van a ir ejecutando secuencialmente según fueron estando $ready$. \newline
+Al aumentar en una unidad el número de core. La primer tarea disponible comenzó a ejecutarse. Dado que aun disponemos de otro core, cuando una segunda tarea paso a estar disponible pudo ser ejecutada al instante por el núcleo adicional. Y cuando uno de estos se desocupó se ejecutó la última tarea. Dado que dos tareas pudieron ejecutarse simultaneamente el tiempo total disminuyó. Aún más cuando se trabajó con 3 cores cada tarea pudo ser ejecutada en un núcleo distinto y dado que ambas podian ser ejecutadas mientras se ejecutaban las otras el tiempo total fue igual al máximo entre $release$ $time_j$ + $c_j$, donde j indica alguna de las tres tares utilizadas y $c_j$ su tiempo de ejecución.   
 \newpage
+
 \section{Parte II}
 
 
@@ -146,10 +152,10 @@ Las estructuras de datos con las que vamos a trabajar, en la clase \emph{SchedRR
 	
 	\begin{itemize}
 	\item[•]\textbf{cores} es la cantidad de n\'ucleos.
-	\item[•]\textbf{quantums} es un vector de \textit{cores} posiciones que guarda en quantums[i] el valor del quantum del n\'ucleo i.
-	\item[•]\textbf{quantus_timer} es un vector, tal que quantus_timer[i] representa el valor de lo que resta del quantum de la tarea corriendo en el n\'ucleo i. \textcolor{red}{es asi esto que puse?}
-	\item[•]\textbf{actuales} son las \textit{cores} tareas que est\'an corriendo ahora. Para la posici\'on actuales[i] ser\'a la tarea que est\'e corriendo en el n\'ucleo i (si no hay nada, sera la Tarea Iddle).
-	\item[•]\textbf{siguiente} indica el core que corresponde a utilizar pr\'oximo.
+	\item[•]\textbf{quantums} es un vector de \textit{cores} posiciones, que guarda en quantums[i] el valor del quantum asignado al n\'ucleo i.
+	\item[•]\textbf{quantus_timer} es un vector, tal que quantus_timer[i] representa el valor del quantum restante para la tarea corriendo en el n\'ucleo i.
+	\item[•]\textbf{actuales} vector que indica el PID de la tarea ejecutandose en el núcleo i (actuales[i]). Para los núcleos sin tarea devuelve la constante $IDLE\_TASK$.
+	\item[•]\textbf{siguiente} indica el core al que se le debe asignar la siguiente tarea.
 	\item[•]\textbf{cola} es la cola de tareas que restan ser ejecutadas.
 	\end{itemize}	
 	
@@ -167,27 +173,19 @@ Al construir un Scheduler Round-Robin, se instancian las estructuras de datos de
 
 \subsubsection*{Funci\'on Load}
 
-Recibo un \emph{pid} como par\'ametro, si tengo alg\'un nucleo libre se la asigno a \'el sino encolo el \emph{pid} en la cola global \emph{cola}. \textcolor{red}{No se porque hace siguiente = cores}
+Recibe el \emph{pid} de una nueva tarea como par\'ametro. Luego, las primeras n tareas (siendo n el número de cores) se distribuyen entre cada core (dado que al inicio tengo n cores disponibles). Una vez alcanda las n distribuciones se encolan los nuevos \emph{pid} en \emph{cola}. Estos seran asignados a los distintos cores con la función $next$ explicada luego.
 
 \subsubsection*{Funci\'on Tick}	
 
-\textcolor{red}{El tick pasa para un solo n\'ucleo, cada uno tiene su clock??}.Recibe \emph{cpu} como par\'ametro. S\'olo voy a actualizar el quantum (restarle 1) de la tarea en \emph{cpu} si no es la Iddle, porque esta corre indefinidamente hasta que la desplace otra tarea.
-
-Si se acab\'o el quantum de la tarea actual (ya sea porque termin\'o o no) o se bloque\'o, voy a querer actualizar la tarea actual. Para esto, invoco a la funci\'on \emph{next()}.
-
-Devuelve el \emph{pid} de la tarea actual ejecut\'andose, al pasar el tick del clock.
+Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Dado que se produjo un tick voy a actualizar el quantum (restarle 1) de la tarea en \emph{cpu}, si no es la Iddle (porque esta corre indefinidamente hasta que la desplace otra tarea). 
+Si se acab\'o el quantum de la tarea actual (ya sea porque termin\'o o no) o se bloque\'o, voy a querer actualizar la tarea actual. Para esto, invocó a la funci\'on \emph{next()}. La misma devuelve el \emph{pid} de la próxima tarea a ejecutar en \emph{cpu}.
 
 \subsubsection*{Funci\'on Next}	
 	
-La funci\'on Next tambi\'en va a ser invocada para un s\'olo n\'ucleo \emph{cpu} pasada por par\'ametro.\\
-
+La funci\'on Next tambi\'en va a ser invocada para un s\'olo n\'ucleo \emph{cpu} pasado por par\'ametro.\\
 De este modo, si la tarea que se estaba ejecutando previo a la invocaci\'on de \emph{next()} termin\'o de ejecutarse y la cola se encuentra vac\'ia, la tarea que pondr\'a a ejecutar va a ser la Tarea Iddle.
-
 Si la tarea que se estaba ejecutando no termin\'o su ejecuci\'on o se bloqueo, se deber\'a encolar en la cola global de pendientes.
-
 Si todav\'ia no asign\'e una tarea actual para el n\'ucleo cpu, le asigno la primera de la cola d\'andole todo el quantum disponible para el n\'ucleo \emph{cpu}. (Si la cola se encontraba vac\'ia al llamar la funci\'on next() y la tarea ejecut\'andose no hab\'ia conclu\'ido se la encolar\'a para luego volver a asign\'arsela al n\'ucleo).\\
-
-Devuelve el \emph{pid} de la tarea actual ejecut\'andose.
  
 \bigskip 
  
@@ -197,7 +195,12 @@ Devuelve el \emph{pid} de la tarea actual ejecut\'andose.
 \textit{Dise\~nar uno o m\'as lotes de tareas para ejecutar con el algoritmo del ejercicio anterior. Graficar las simulaciones y comentarlas, justificando brevemente por qu\'e el comportamiento observado es efectivamente el esperable de un algoritmo Round-Robin.}\\
 
 
-Primero ejecutamos el mismo lote de Tareas utilizado anteriormente:
+Para poder observar el comportamiento del Scheduler basado en la metodologia Round Robin evaluamos tres casos.
+
+\subsection{1er caso:}
+
+Ejecutamos el mismo lote de tareas utilizado anteriormente (pág 4), manteniendo los mismos parametros, para asi poder evaluar y comparar un Scheduler basado en Round Robin y otro en FCFS. 
+
 	\begin{codesnippet}
 	\begin{verbatim}
 TaskConsola 4 2 7
@@ -207,40 +210,103 @@ TaskConsola 5 1 10
 	\end{verbatim}
 	\end{codesnippet}
 
-	Tambi\'en lo corrimos para 1, 2 y 3 n\'ucleos, cada uno con un quantum de 1, 2 y 3 respectivamente. Para los tres casos se consider\'o un costo de una unidad para cambiar de contexto y para cambiar un proceso de n\'ucleo de procesamiento.\\
-
 Los diagramas de Gantt obtenidos fueron los siguientes:\\
 
 
- \begin{figure}[h!]
-   \begin{center}
- 	\includegraphics[scale=0.5]{imagenes/ej4/1core.png}
- 	\caption{Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 1 n\'ucleo.}
-   \end{center}
- \end{figure} 
- 
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej4/1core.png} \newline
+\begin {flushleft}
+\textbf{Figura 4:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 1 n\'ucleo con Scheduler Round Robin.
+\end{flushleft}
 
- \begin{figure}[h!]
-   \begin{center}
- 	\includegraphics[scale=0.5]{imagenes/ej4/2core.png}
- 	\caption{Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos.}
-   \end{center}
- \end{figure} 
- 
+  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej4/2core.png} \newline
+\begin {flushleft}
+\textbf{Figura 5:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con Scheduler Round Robin.
+\end{flushleft}
 
 
-  \begin{figure}[h!]
-   \begin{center}
- 	\includegraphics[scale=0.5]{imagenes/ej4/3core.png}
- 	\caption{Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos.}
-   \end{center}
- \end{figure} 
+  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej4/3core.png} \newline
+\begin {flushleft}
+\textbf{Figura 6:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos con Scheduler Round Robin.
+\end{flushleft}
  
- \textcolor{red}{Y aca comparamos un poco con como fue la ejecucion antes blablabla}\\
- 
- \textcolor{red}{Y aca van otros dos lotes comparando un ejemplo bueno de round robin y uno malo}
 
-\bigskip
+ \bigskip
+ 
+ \subsection{2do caso:}
+ 
+ Para este caso se creo un nuevo lote de tareas y lo que se busco fue analizar como varia el tiempo total de ejecución, para las mismas, a medida que se cambia el quantum para un total de dos cores.\newline 
+ Las tareas que se usaron son las siguientes:\newline
+ \begin{codesnippet}
+	\begin{verbatim}
+TaskConsola 10 2 6
+TaskCPU 10
+@3:
+TaskCPU 7
+@2:
+TaskConsola 7 4 10
+	\end{verbatim}
+	\end{codesnippet}
+
+Los resultados obtenidos son:
+
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej4/eje1.png} \newline
+\begin {flushleft}
+\textbf{Figura 7:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantum de 2 y 2 ciclos respectivamente.
+\end{flushleft}
+
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej4/eje2.png} \newline
+\begin {flushleft}
+\textbf{Figura 8:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantumd de 8 y 8 ciclos respectivamente.
+\end{flushleft}
+
+
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej4/eje3.png} \newline
+\begin {flushleft}
+\textbf{Figura 9:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantumd de 2 y 8 ciclos respectivamente.
+\end{flushleft}
+
+ 
+ \subsection{3er caso:}
+ 
+ En el último caso se observó el comportamiento para un lote  de tarea. A medida que modificabamos el número de núcleos en los que se ejecutaban las mismas.\newline
+ Las tareas usadas fueron:
+ \begin{codesnippet}
+	\begin{verbatim}
+TaskCPU 7
+@2:
+TaskCPU 6
+@1:
+TaskCPU 10
+@3:
+TaskCPU 4
+	\end{verbatim}
+	\end{codesnippet}
+	
+	Obteniendo los siguientes resultados:
+
+  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej4/eje4.png} \newline
+\begin {flushleft}
+\textbf{Figura 10:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos con Scheduler Round Robin.
+\end{flushleft}
+
+
+
+
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej4/eje6.png} \newline
+\begin {flushleft}
+\textbf{Figura 11:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con Scheduler Round Robin.
+\end{flushleft}
+ 
+
+\newpage
 
  \subsection{Ejercicio 5: Scheduling algorithms for multiprogramming in a hard-real-time environment}
  
@@ -296,12 +362,129 @@ only if\\
  \subsection{Ejercicio 7: Ejecuci\'on lote de tareas}
 \textit{Elegir al menos dos m\'etricas diferentes, definirlas y explicar la sem\'antica de su definici\'on. Dise\~nar un lote de tareas TaskBatch, todas ellas con igual uso de CPU, pero con diversas cantidades de bloqueos. Simular este lote utilizando el algoritmo SchedRR y una variedad apropiada de valores de quantum. Mantener fijo en un (1) ciclo de reloj el costo de cambio de contexto y dos (2) ciclos el de migraci\'on. Deben variar la cantidad de n\'ucleos de procesamiento. Para cada una de las m\'etricas elegidas, concluir cu\'al es el valor \'optimo de quantum a los efectos de dicha m\'etrica.}
 
+\newpage
  \subsection{Ejercicio 8: Scheduler Round-Robin modificado}
 \textit{Implemente un scheduler Round-Robin que no permita la migraci\'on de procesos entre n\'ucleos (SchedRR2). La asignaci\'on de CPU se debe realizar en el momento en que se produce la carga de un proceso (load). El n\'ucleo correspondiente a un nuevo proceso ser\'a aquel con menor cantidad de procesos activos totales (RUNNING + BLOCKED + READY). Dise\~ne y realice un conjunto de experimentos que permita evaluar comparativamente las dos implementaciones de Round-Robin.}
 
+
+Las estructuras de datos con las que vamos a trabajar, en la clase \emph{SchedRR2}, son las siguientes:
+	\begin{codesnippet}
+	\begin{verbatim}
+		int cores;
+		vector<int> quantums;
+		vector<int> quantums_timer;
+		vector<int> actuales;
+		int siguiente;
+		vector<pair<int, queue<int, deque<int>>*>> colas;
+	\end{verbatim}
+	\end{codesnippet}
+	
+	\begin{itemize}
+	\item[•]\textbf{cores} cantidad de n\'ucleos.
+	\item[•]\textbf{quantums} vector de \emph{cores} posiciones, donde quantums[i] es el valor del quantum asignado al core i.
+	\item[•]\textbf{quantus_timer}  vector tal que en quantus_timer[i] se encuentra el valor del quantum restante para la tarea corriendo en el i-esimo núcleo.
+	\item[•]\textbf{actuales} vector que indica el PID de la tarea ejecutandose en el núcleo i (actuales[i]). Para los núcleos sin tarea devuelve la constante $IDLE\_TASK$.
+	\item[•]\textbf{siguiente} indica el core al que se le debe asignar la próxima tarea.
+	\item[•]\textbf{colas} vector de tuplas. Donde cada posición reresenta a un core y la primer componente de la tupla hacer referencia al número de tareas running + blocked + ready en el mismo. Y la segunda componente es una cola FIFO con los respectivos PID's.  
+	\end{itemize}	
+	
+%\bigskip	
+\noindent  Modificamos a la funcion \emph{next} para que reciba un parametro m\'as (enum Motivo \{ TICK, BLOCK, EXIT \}).
+	\begin{codesnippet}
+	\begin{verbatim}
+    int next(int cpu, const enum Motivo m);
+	\end{verbatim}
+	\end{codesnippet}
+		
+\subsubsection*{Constructor Scheduler Round-Robin Modificado}		
+
+Al construir un Scheduler Round-Robin sin migración de procesos, empezamos por instanciar las estructuras de datos de modo que: a \emph{cores} se le asigna la cantidad de cores correspondientes. A \emph{quantums\_timer} los respectivos quantums; Todas las tareas actuales se definen como Iddle en \emph{actuales}; Se inicia cada tupla de \emph{colas} en cero ya que aún no hay tareas y las colas vacias; Por último \emph{siguiente} es el n\'ucleo al que le corresponde ejecutar la primer tarea, es decir al 0.
+
+\subsubsection*{Funci\'on Load}
+
+Recibe el \emph{pid} de una nueva tarea como par\'ametro. Al igual que para el Scheduler Round Robin, adoptamos distribuir las primeras n tareas entre cada core (dado que al inicio hay n cores disponibles). Además se incrementa la primer componente de cada tupla en uno (dado que ahora en cada core tengo una tarea). Una vez alcanda las n distribuciones se las futuras tareas seran asignadas a los CPU's con menor cantidad de tareas running + blocked + ready.  Es decir, se encolaran sus pid's en las colas de cada CPU de \emph{colas} con la primer componente más baja, incrementado ahora dicha componente.
+
+\subsubsection*{Funci\'on Tick}	
+
+Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Dado que se produjo un tick voy a actualizar el quantum (restarle 1) de la tarea en \emph{cpu}, siempre que no sea la IDLE. Si se acab\'o el quantum de la tarea actual (ya sea porque termin\'o o no) o se bloque\'o, voy a querer actualizar la tarea actual. Invocando a la funci\'on \emph{next()}. La misma devuelve el \emph{pid} de la próxima tarea a ejecutar en \emph{cpu}.
+
+\subsubsection*{Funci\'on Next}	
+	
+
+Si la tarea que se estaba ejecutando previo a la invocaci\'on de \emph{next()} termin\'o de ejecutarse y la cola se encuentra vac\'ia, la tarea que pondr\'a a ejecutar va a ser la Tarea Iddle y se actualiza el número que indica cuantas tareas hay en ese cpu.
+Si la tarea que se estaba ejecutando no termin\'o su ejecuci\'on o se bloqueo, se deber\'a encolar en la cola del \emph{cpu} pasado por parametro.
+Si todav\'ia no asign\'e una tarea actual para el mismo, le asigno la primera de la cola d\'andole todo el quantum disponible para el n\'ucleo \emph{cpu}. (Si la cola se encontraba vac\'ia al llamar la funci\'on next() y la tarea ejecut\'andose no hab\'ia conclu\'ido se la encolar\'a para luego volver a asign\'arsela al n\'ucleo).\\
+ 
+\bigskip 
+ 
+Para evaluar el comportamiento del Scheduler Round Robin sin migraciones frente al diseñado en la sección 2. Pág 6. Vamos a utilizar el mismo lote de tareas que se uso para este último en los casos 2 y 3. Manteniendo las mismas condiciones en las que fueron obtenidos los resultados de esta forma para el lotes de tarea:
+ 
+ \begin{codesnippet}
+	\begin{verbatim}
+TaskConsola 10 2 6
+TaskCPU 10
+@3:
+TaskCPU 7
+@2:
+TaskConsola 7 4 10
+	\end{verbatim}
+	\end{codesnippet}
+	
+Se obtuvo como resultado:	
+
+\includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej8/2eje1.png} \newline
+\begin {flushleft}
+\textbf{Figura 12:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 2 y 2 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
+\end{flushleft}	
+ 
+  
+  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej8/2eje2.png} \newline
+\begin {flushleft}
+\textbf{Figura 13:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 8 y 8 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
+\end{flushleft}	
+
+\includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej8/2eje3.png} \newline
+\begin {flushleft}
+\textbf{Figura 14:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 2 y 8 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
+\end{flushleft}	
+
+\bigskip
+Y para las tareas: 
+  
+ \begin{codesnippet}
+	\begin{verbatim}
+ TaskCPU 7
+@2:
+TaskCPU 6
+@1:
+TaskCPU 10
+@3:
+TaskCPU 4
+	\end{verbatim}
+	\end{codesnippet}
+	
+Obtuvimos los siguientes resultados:\newline
+	
+\includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej8/2eje4.png} \newline
+\begin {flushleft}
+\textbf{Figura 15:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos con quantums de 3, 2 y 3 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
+\end{flushleft}	
+	
+
+\includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej8/2eje6.png} \newline
+\begin {flushleft}
+\textbf{Figura 17:}Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 5 y 5 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
+\end{flushleft}	
+ 
+\newpage
  \subsection{Ejercicio 9:  Ejecuci\'on lote de tareas}
 \textit{Dise\~nar un lote de tareas cuyo scheduling no sea factible para el algoritmo de prioridades fijas pero s\'i para el algoritmo de prioridades din\'amicas.}
-
+\newpage
  \subsection{Ejercicio 10:  Ejecuci\'on lote de tareas}
 \textit{Dise\~nar un lote de tareas, cuyo scheduling s\'i sea factible con el algoritmo de prioridades fijas, donde se observe un mejor uso del CPU por parte del algoritmo de prioridades din\'amicas.}
 
