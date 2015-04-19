@@ -8,10 +8,13 @@
 \contentsline {subsection}{\numberline {2.3}1er caso:}{7}{subsection.2.3}
 \contentsline {subsection}{\numberline {2.4}2do caso:}{8}{subsection.2.4}
 \contentsline {subsection}{\numberline {2.5}3er caso:}{9}{subsection.2.5}
-\contentsline {subsection}{\numberline {2.6}Ejercicio 5: Scheduling algorithms for multiprogramming in a hard-real-time environment}{10}{subsection.2.6}
-\contentsline {section}{\numberline {3}Parte III}{11}{section.3}
-\contentsline {subsection}{\numberline {3.1}Ejercicio 6: TaskBatch}{11}{subsection.3.1}
-\contentsline {subsection}{\numberline {3.2}Ejercicio 7: Ejecuci\'on lote de tareas}{11}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}Ejercicio 8: Scheduler Round-Robin modificado}{12}{subsection.3.3}
-\contentsline {subsection}{\numberline {3.4}Ejercicio 9: Ejecuci\'on lote de tareas}{15}{subsection.3.4}
-\contentsline {subsection}{\numberline {3.5}Ejercicio 10: Ejecuci\'on lote de tareas}{16}{subsection.3.5}
+\contentsline {subsection}{\numberline {2.6}Ejercicio 5: Scheduling algorithms for multiprogramming in a hard-real-time environment}{11}{subsection.2.6}
+\contentsline {subsection}{\numberline {2.7}a:}{11}{subsection.2.7}
+\contentsline {subsection}{\numberline {2.8}b:}{11}{subsection.2.8}
+\contentsline {subsection}{\numberline {2.9}c:}{11}{subsection.2.9}
+\contentsline {section}{\numberline {3}Parte III}{13}{section.3}
+\contentsline {subsection}{\numberline {3.1}Ejercicio 6: TaskBatch}{13}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Ejercicio 7: Ejecuci\'on lote de tareas}{13}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Ejercicio 8: Scheduler Round-Robin modificado}{14}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Ejercicio 9: Ejecuci\'on lote de tareas}{17}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.5}Ejercicio 10: Ejecuci\'on lote de tareas}{18}{subsection.3.5}

@@ -95,7 +95,7 @@ TaskConsola 5 1 10
 	\end{verbatim}
 	\end{codesnippet}
 	
-Además para observar como varía el tiempo total (si es que lo hace), se simuló la ejecución para 1, 2 y 3 cores. Para los tres casos se consider\'o un costo de una unidad para cambiar de contexto y para cambiar un proceso de n\'ucleo de procesamiento.\\
+Además para observar como varía el tiempo total (si es que lo hace), se simuló la ejecución para 1, 2 y 3 cores. Dado que en este tipo de Scheduler no hay cambio de contexto ni migración de procesos entre los distintos núcleos los demas parametros no son de importancia.
 
 Los diagramas de Gantt obtenidos fueron los siguientes:\\
 
@@ -232,12 +232,12 @@ Los diagramas de Gantt obtenidos fueron los siguientes:\\
 \textbf{Figura 6:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos con Scheduler Round Robin.
 \end{flushleft}
  
-
+Apartir de los resultados obtenidos podemos ver que para los gráficos 5 y 6 el tiempo total de ejecución fue el mismo que para las figuras 2 y 3 respectivamente. En estos casos observamos que el tiempo dependió de la tarea TaskConsola 4 2 7. La cual tenia el mayor tiempo de ejecución. Entonces, sin importar el modelo, aunque las otras dos tareas terminaron el procesador tuvo que esperar a que finalice dicha tarea. Un caso interesante para análizar es de la figura 1 y 4. En ambas, solo se utilizaba un núcleo. Pero, en el modelo Round Robin el tiempo de ejecución fue menor. Esto se debe al comportamiento de dicho scheduler que permite cambios de contexto y migración deprocesos. Para el modelo FCFS, había que esperar que una tarea finalice para ejecutar la próxima. Si ésta tenía mucho tiempo de bloqueo entonces ese tiempo se desperciaba. En el modelo Round Robin se pudieron aprovechear esos tiempos para ejecutar las otras tareas. Y dado que la tarea con mayor tiempo de ejecución era del tipo TaskConsola con muchos períodos de bloqueo. El tiempo fue lo suficiente como para ejecutar en su totalidad las otras tareas.  
  \bigskip
  
  \subsection{2do caso:}
  
- Para este caso se creo un nuevo lote de tareas y lo que se busco fue analizar como varia el tiempo total de ejecución, para las mismas, a medida que se cambia el quantum para un total de dos cores.\newline 
+ Para este caso se creo un nuevo lote de tareas y lo que se busco fue analizar como varía el tiempo total de ejecución, para las mismas, a medida que se cambia el quantum para un total de dos cores.\newline 
  Las tareas que se usaron son las siguientes:\newline
  \begin{codesnippet}
 	\begin{verbatim}
@@ -261,16 +261,17 @@ Los resultados obtenidos son:
  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
 ]{imagenes/ej4/eje2.png} \newline
 \begin {flushleft}
-\textbf{Figura 8:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantumd de 8 y 8 ciclos respectivamente.
+\textbf{Figura 8:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantum de 8 y 8 ciclos respectivamente.
 \end{flushleft}
 
 
  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
 ]{imagenes/ej4/eje3.png} \newline
 \begin {flushleft}
-\textbf{Figura 9:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantumd de 2 y 8 ciclos respectivamente.
+\textbf{Figura 9:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantum de 2 y 8 ciclos respectivamente.
 \end{flushleft}
 
+Los resultados obtenidos se acercan a lo esperado. Los cuales fueron que para quantums muy chicos, el tiempo de ejecución total aumente frente a otros casos. Lo cual se observa en la figura 7. Principalmente cuando se utilizan quantums muy chicos ocurren muchos cambios de contextos. Si este no es depreciable, AumentandA el tiempo total que el procesador necesita para ejecutar todas las tareas. Luego, al aumentar el quantum de cada core a 8 (figura 8), observamos que el tiempo total fue menor que para el caso anterior. Ya que, se produjeron menos cambios de contexto. Sin embargo, cuando se usó un quantum bajo y otro de mayor ciclo, el tiempo total bajó con respecto al anterior caso. Podemos atribuir este comportamiento al tipo de tareas con el que se trabajamos como se observa, algunas tareas pudieron migrar en este último caso y finalizar su ejecución más rapidamente. Intuyendo, con estos resultados, que quantums de ciclos muy bajos no son beneficiosos. Lo mejor es encontrar un promedio de la cantidad de ciclos para un quantum dado que para valores mas grandes también se observó que puede tardar más con respecto a otros casos.   
  
  \subsection{3er caso:}
  
@@ -306,47 +307,50 @@ TaskCPU 4
 \end{flushleft}
  
 
+En este último caso quisimos comparar el comportamiento de un mismo lote de tareas cuando modificabamos el número de cores en un Scheduler Round Robin. Lo que observamos fue que cuando se contaba con un número mayor de cores las migraciones de procesos fueron mas frecuentes. Dado que estas no son despreciables y de hecho tienen un costo de 2 ciclos. Al producirse en gran cantidad el tiempo total para la finalización de tareas aumentó considerablemente. Como se observa en la figura 10, hay un gran lapso de tiempo entre la ejecución de una misma tarea. Dado que en cada quantum se ejecutaron en un core distinto. En cambio, en la figura 11 no se prudujeron migraciones, y pese a que se contaba con un core menos el tiempo fue menor. Pudiendo concluir que aunque las migraciones de procesos pueden ser provechosas como se observó en el caso 2 (pág 9). Si se producen en exceso pueden perjudicar la perfomance del procesador.  
+
 \newpage
 
  \subsection{Ejercicio 5: Scheduling algorithms for multiprogramming in a hard-real-time environment}
  
-\textit{A partir del art\'iculo Liu, Chung Laung, and James W. Layland. Scheduling algorithms for multiprogramming in a hard-real-time environment. Journal of the ACM (JACM) 20.1 (1973): 46-61.}
+\textit{A partir del art\'iculo Liu, Chung Laung, and James W. Layland. Scheduling algorithms for multiprogramming in a hard-real-time environment. Journal of the ACM (JACM) 20.1 (1973): 46-61.}\newline
 
-\begin{enumerate}
-\item \textit{Responda:}
-
+Responda:
 \begin{enumerate}
 \item \textit{¿Qu\'e problema est\'an intentando resolver los autores?}
 
-The problem of multiprogram scheduling on a single processor is studied from the viewpoint
-of the characteristics peculiar to the program function that need guaranteed service. It is shown
-that an optimum fixed priority scheduler possesses an upper bound to processor utilization
-which may be as low as 70 percent for large task sets. It is also shown that full processor
-utilization can be achieved by dynamically assigning priorities on the basis of their current
-deadlines. A combination of these two scheduling techniques is also discussed.
-
 \item \textit{¿Por qu\'e introducen el algoritmo de la secci\'on 7? ¿Qu\'e problema buscan resolver con esto?}
-
-We turn now to study a dynamic scheduling algorithm which we call the deadline driven scheduling
-algorithm. Using this algorithm, priorities are assigned to tasks according to the deadlines of their
-current requests. A task will be assigned the highest priority if the deadline of its current request
-is the nearest, and will be assigned the lowest if the deadline of its current request is the furthest.
-At any instant, the task with the highest priority and yet fulfilled request will be executed. Such
-a method of assigning priorities to the tasks is a dynamic one, in contrast to a static assignment
-in which priorities of tasks do not change with time. We want now to establish a necessary and
-sufficient condition for the feasibility of the deadline driven scheduling algorithm.
 
 \item  \textit{Explicar coloquialmente el significado del teorema 7.}
 
-For a given set of m tasks, the deadline driven scheduling algorithm is feasible if and
-only if\\
-
-(C1/T1) + (C2/T2) + ... + (Cm/Tm) $<=$1:
-
 \end{enumerate}
 
-\item \textit{Dise\~nar e implementar un scheduler basado en prioridades fijas y otro en prioridades din\'amicas. Para eso complete las clases SchedFixed y SchedDynamic que se encuentran en los archivos sched fixed.[h|cpp] y sched dynamic.[h|cpp] respectivamente.}
-\end{enumerate}
+\subsection{a:}
+
+Frente al avance que se venia produciendo en esos años del uso de las computadoras en distintos procesos industriales. Los autores establecieron que esto se iría masificiando aún más. Y que una correcta aplicación solo es posible cuando se tiene un scheduler eficiente y factible. Sobre todo para aquellos usos en los cuales se requerían que las tareas llevadas al cabo se ejecuten dentro de un lapso de tiempo determinado (a lo cual lo llaman \textit{"hard-real-time"}). Ya que en caso contrario, una respuesta tardía podría provocar un efecto no deseado en una aplicación o no sería de interés. Además intentaron desarollar este tema. Ya que como describen, la mayoría de paper, hasta entonces, estaban orientados a contextos en lo que no había una cota de tiempo para llevar a cabo todas las tareas. Y los que habían, hacían uso de varios supuestos, llevando en algunos casos a situaciones irreales. Por lo que plantearon dos modelos de scheduler para tareas en un entorno de \textit{hard-real-time}. Ambos se basan en fijar prioridades para cada una de las tareas pero, uno de manera estática y el otro dinámicamente. Además para mejorar el rendimiento del mismo buscan establecer cotas (cuando es posible) para determinar si es aplicable alguno de los modelos. De manera que no se produzca \textit{overflow} (alguna de las tareas finalice su ejecución después del tiempo límite).
+
+
+\subsection{b:}
+En la sección 7 se introduce un nuevo algoritmo, el cual es para un scheduler basado en asignaciones de prioridades dinámicamente (llamado \textit{The deadline Driven Scheduling}). Lo introducen como una variante al algoritmo presentado anteriormente (para un scheduler con prioridades fijas). Intentando evitar o disminuir algunos de los problemas presentados para dicho modelo. \newline
+Una de los problemas a resolver es mejorar las asignaciones de las prioridades. De manera de aprovechar el procesador a un 100\%. De esta forma, este nuevo algoritmo establece que el nuevo modelo nunca va a ejecutar la idle sino, que siempre se va a estar ejecutando alguna tarea. A diferencia del modelo de prioridades fijas, donde la utilización del procesador podía variar de un 70 a un 100\%. Para conseguir esto, se va a aumentar o disminuir la prioridad de una tarea conforme se acerca a su deadline, es decir las prioridades de una misma tarea van a ser modificadas a lo largo de su ejecución. Además, buscaron determinar si un conjunto de tareas evitara producir overflow, con este algoritmo. En el caso del scheduler con prioridades fijas, se estableció una condición para tal motivo (\textit{teorema 4 $^1$}). Pero, la misma solo es necesaria. Para el scheduler presentado en esta sección se desarrollo una nueva condición, \textit{teorema 7}, la cual garantiza que si se cumple entonces es aplicable el algoritmo y en caso contrario, no lo es (el mismo sera explicado en el siguiente punto). 
+  
+\subsection{c:}
+
+Teorema 7:
+\textit {For a given set of m tasks, the deadline driven scheduling algorithm
+is feasible if and only if }\newline
+ 
+ \textit {$(C_1/T_1)$ + $(C_2/T_2)$ + . . . + $(C_m/T_m)$ $\leq$ 1 } $^2$\newline
+
+\textit{Siendo $C_i$ el tiempo de ejecuci\'on para una tarea i, 1 $\leq$ i $\leq$ m, y $T_i$ su respectivo per\'iodo.}
+
+En las secciones anteriores, al presente teorema, se determina que la fracción de CPU que utiliza una tarea en el sistema esta dado por $C_i/T_i$ (\textit{the utilization factor}). Lo que se plantea en este teorema es que un scheduler, para una cantidad m de tareas, es factible y por lo tanto realizable sin que se produzca overflow. Cuando la suma del costo de CPU de cada tarea es menor que uno o igual a 1. Es decir que el ejecutar todas las tareas este dentro de la capacidades del CPU (no supere el 100\% del rendimiento del mismo). Ya que en caso contrario se estaria exigiendo que el CPU trabaje a más límite, lo cual es imposible. \newline
+
+
+\footnote[1]{Scheduling Algorithms for Multiprogramming in a HardReal-Time Environment.
+C. L. LIU Project MAC, Massachusetts Institute of Technology AND JAMES W. LAYLAND Jet Propulsion Laboratory, California Institute of Technology. pág 6}\newline
+\footnote[2]{Scheduling Algorithms for Multiprogramming in a HardReal-Time Environment.
+C. L. LIU Project MAC, Massachusetts Institute of Technology AND JAMES W. LAYLAND Jet Propulsion Laboratory, California Institute of Technology. pág 10}
 
 
 
@@ -364,6 +368,9 @@ only if\\
 
 \newpage
  \subsection{Ejercicio 8: Scheduler Round-Robin modificado}
+ 
+\textcolor{red}{(ME FALTA EXPLICAR ESTAS EXPERIMENTACIONES, PERO VOY A ESTUDIAR PARA METODOS :/ )} 
+ 
 \textit{Implemente un scheduler Round-Robin que no permita la migraci\'on de procesos entre n\'ucleos (SchedRR2). La asignaci\'on de CPU se debe realizar en el momento en que se produce la carga de un proceso (load). El n\'ucleo correspondiente a un nuevo proceso ser\'a aquel con menor cantidad de procesos activos totales (RUNNING + BLOCKED + READY). Dise\~ne y realice un conjunto de experimentos que permita evaluar comparativamente las dos implementaciones de Round-Robin.}
 
 
@@ -417,7 +424,8 @@ Si todav\'ia no asign\'e una tarea actual para el mismo, le asigno la primera de
  
 \bigskip 
  
-Para evaluar el comportamiento del Scheduler Round Robin sin migraciones frente al diseñado en la sección 2. Pág 6. Vamos a utilizar el mismo lote de tareas que se uso para este último en los casos 2 y 3. Manteniendo las mismas condiciones en las que fueron obtenidos los resultados de esta forma para el lotes de tarea:
+Para evaluar el comportamiento del Scheduler Round Robin sin migraciones frente al diseñado en la sección 2, Pág 6. Vamos a utilizar el mismo lote de tareas que se uso para este último en los casos 2 y 3. Manteniendo las mismas condiciones en las que fueron obtenidos los resultados.\newline
+De esta forma para el lote de tareas:
  
  \begin{codesnippet}
 	\begin{verbatim}
