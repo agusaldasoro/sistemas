@@ -62,7 +62,7 @@
 \begin{abstract}
 En el presente trabajo se describe la problemática de ...
 \end{abstract}
-\newpage
+
 
 \thispagestyle{empty}
 \vspace{3cm}
@@ -81,7 +81,7 @@ Al momento de ejecutar la tarea \emph{TaskConsola}, lo que realiza nuestro algor
 
 
 
-\subsection{Ejercicio 2: Ejecuci\'on de tres tareas}
+\subsection{Ejercicio 2: Ejecuci\'on de tres tareas}\label{ej2}
 \textit{Escribir un lote de 3 tareas distintas: una intensiva en CPU y las otras dos de tipo interactivo (TaskConsola). Ejecutar y graficar la simulaci\'on usando el algoritmo FCFS para 1, 2 y 3 n\'ucleos.}\\
 
 Para observar el comportamiento de un lote de tareas en un scheduler basado en la técnica FCFS
@@ -122,11 +122,22 @@ Los diagramas de Gantt obtenidos fueron los siguientes:\\
  	\caption{Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos.}
    \end{center}
  \end{figure} 
+ 
+ \textcolor{red}{Agus:}\\
+ 
+ Dado a que el algoritmo de Scheduler utilizado es First Come First Served (FCFS), las tareas entrantes se ejecutan secuencialmente por orden de llegada. La ejecuci\'on de ninguna tarea es interrumpida, ya que la tarea ejecuta hasta terminar con su ejecuci\'on, no tiene en cuenta si est\'a bloqueada o no.\\
 
-\textcolor{red}{Aca habria que hablar un poco y revisar esto: :D}
+Teniendo en cuenta el comportamiento explicado, es coherente que el primer caso (donde se cuenta con un s\'olo n\'ucleo) es donde ejecutar el lote de tres tareas conlleva mayor tiempo. Esto se debe a que el tiempo que demora en ejecutar las tres tareas es la suma de los tiempos de cambio de contexto, el tiempo de ejecuci\'on para cada una y el tiempo que permanece bloqueado.
+
+En cambio, al ejecutarlo con dos o tres n\'ucleos se puede apreciar en los diagramas c\'omo se ejecutan tareas en simult\'aneo. Este comportamiento reduce notablemente el tiempo de ejecuci\'on total, ya que en este caso no ser\'ia la suma del tiempo parcial para cada tarea.\\
+
+Dado a la estructura de nuestro lote de tareas, el tiempo de ejecuci\'on que conlleva teniendo dos n\'ucleos o tres es el mismo (ya que en el caso de dos n\'ucleos las tareas 1 y 2 se ejecutan secuencialmente en el segundo n\'ucleo dando un tiempo menor que la ejecuci\'on total de la tarea 0). Sin embargo, la ejecuci\'on de la tarea Iddle es mayor en el caso de tres n\'ucleos, lo cual produce un \textcolor{red}{Inserte aqui palabra espec\'ifica para esto}. Resulta bastante intuitivo este comportamiento, ya que tenemos tantos n\'ucleos como tareas.\\
+
+\textcolor{red}{Angel:}\\
 
 A partir de los resultados obtenidos en los gráficos anteriores. Podemos observar que el tiempo total varía de acuerdo al número de cores con los que se este simulando. A medida que se incrementa el número el tiempo total disminuye. No solo influyó este factor sino que también, el hecho de que estamos trabajando con un modelo sin desalojo.  
-Al trabajar con un solo core debemos esperar que una tarea finalice para que la próxima pueda ser ejecutada. Es decir, se van a ir ejecutando secuencialmente según fueron estando $ready$. \newline
+Al trabajar con un solo core debemos esperar que una tarea finalice para que la próxima pueda ser ejecutada. Es decir, se van a ir ejecutando secuencialmente según fueron estando $ready$. \\
+
 Al aumentar en una unidad el número de core. La primer tarea disponible comenzó a ejecutarse. Dado que aun disponemos de otro core, cuando una segunda tarea paso a estar disponible pudo ser ejecutada al instante por el núcleo adicional. Y cuando uno de estos se desocupó se ejecutó la última tarea. Dado que dos tareas pudieron ejecutarse simultaneamente el tiempo total disminuyó. Aún más cuando se trabajó con 3 cores cada tarea pudo ser ejecutada en un núcleo distinto y dado que ambas podian ser ejecutadas mientras se ejecutaban las otras el tiempo total fue igual al máximo entre $release$ $time_j$ + $c_j$, donde j indica alguna de las tres tares utilizadas y $c_j$ su tiempo de ejecución.   
 \newpage
 
@@ -197,9 +208,9 @@ Si todav\'ia no asign\'e una tarea actual para el n\'ucleo cpu, le asigno la pri
 
 Para poder observar el comportamiento del Scheduler basado en la metodologia Round Robin evaluamos tres casos.
 
-\subsection{1er caso:}
+\subsubsection{Caso 1:}
 
-Ejecutamos el mismo lote de tareas utilizado anteriormente (pág 4), manteniendo los mismos parametros, para asi poder evaluar y comparar un Scheduler basado en Round Robin y otro en FCFS. 
+Ejecutamos el mismo lote de tareas utilizado anteriormente \ref{ej2}, manteniendo los mismos parametros, para asi poder evaluar y comparar un Scheduler basado en Round Robin y otro en FCFS. 
 
 	\begin{codesnippet}
 	\begin{verbatim}
@@ -213,32 +224,32 @@ TaskConsola 5 1 10
 Los diagramas de Gantt obtenidos fueron los siguientes:\\
 
 
- \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej4/1core.png} \newline
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej4/1core.png} \newline
 \begin {flushleft}
 \textbf{Figura 4:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 1 n\'ucleo con Scheduler Round Robin.
 \end{flushleft}
 
-  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej4/2core.png} \newline
+  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej4/2core.png} \newline
 \begin {flushleft}
 \textbf{Figura 5:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con Scheduler Round Robin.
 \end{flushleft}
 
 
-  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej4/3core.png} \newline
+  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej4/3core.png} \newline
 \begin {flushleft}
 \textbf{Figura 6:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos con Scheduler Round Robin.
 \end{flushleft}
  
+\bigskip 
+ 
 Apartir de los resultados obtenidos podemos ver que para los gráficos 5 y 6 el tiempo total de ejecución fue el mismo que para las figuras 2 y 3 respectivamente. En estos casos observamos que el tiempo dependió de la tarea TaskConsola 4 2 7. La cual tenia el mayor tiempo de ejecución. Entonces, sin importar el modelo, aunque las otras dos tareas terminaron el procesador tuvo que esperar a que finalice dicha tarea. Un caso interesante para análizar es de la figura 1 y 4. En ambas, solo se utilizaba un núcleo. Pero, en el modelo Round Robin el tiempo de ejecución fue menor. Esto se debe al comportamiento de dicho scheduler que permite cambios de contexto y migración deprocesos. Para el modelo FCFS, había que esperar que una tarea finalice para ejecutar la próxima. Si ésta tenía mucho tiempo de bloqueo entonces ese tiempo se desperciaba. En el modelo Round Robin se pudieron aprovechear esos tiempos para ejecutar las otras tareas. Y dado que la tarea con mayor tiempo de ejecución era del tipo TaskConsola con muchos períodos de bloqueo. El tiempo fue lo suficiente como para ejecutar en su totalidad las otras tareas.  
  \bigskip
  
- \subsection{2do caso:}
+ \subsubsection{Caso 2:}
  
- Para este caso se creo un nuevo lote de tareas y lo que se busco fue analizar como varía el tiempo total de ejecución, para las mismas, a medida que se cambia el quantum para un total de dos cores.\newline 
- Las tareas que se usaron son las siguientes:\newline
+ Para este caso se creo un nuevo lote de tareas y lo que se busco fue: analizar c\'omo varía el tiempo total de ejecución, para las mismas, a medida que se cambia el quantum para un total de dos cores.\\
+ 
+ Las tareas que se usaron son las siguientes:\\
  \begin{codesnippet}
 	\begin{verbatim}
 TaskConsola 10 2 6
@@ -252,30 +263,31 @@ TaskConsola 7 4 10
 
 Los resultados obtenidos son:
 
- \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej4/eje1.png} \newline
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej4/eje1.png} \\
 \begin {flushleft}
 \textbf{Figura 7:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantum de 2 y 2 ciclos respectivamente.
 \end{flushleft}
 
- \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej4/eje2.png} \newline
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej4/eje2.png} \\
 \begin {flushleft}
 \textbf{Figura 8:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantum de 8 y 8 ciclos respectivamente.
 \end{flushleft}
 
 
- \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej4/eje3.png} \newline
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej4/eje3.png} \\
 \begin {flushleft}
 \textbf{Figura 9:} Diagrama para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantum de 2 y 8 ciclos respectivamente.
 \end{flushleft}
 
+\bigskip
+
 Los resultados obtenidos se acercan a lo esperado. Los cuales fueron que para quantums muy chicos, el tiempo de ejecución total aumente frente a otros casos. Lo cual se observa en la figura 7. Principalmente cuando se utilizan quantums muy chicos ocurren muchos cambios de contextos. Si este no es depreciable, AumentandA el tiempo total que el procesador necesita para ejecutar todas las tareas. Luego, al aumentar el quantum de cada core a 8 (figura 8), observamos que el tiempo total fue menor que para el caso anterior. Ya que, se produjeron menos cambios de contexto. Sin embargo, cuando se usó un quantum bajo y otro de mayor ciclo, el tiempo total bajó con respecto al anterior caso. Podemos atribuir este comportamiento al tipo de tareas con el que se trabajamos como se observa, algunas tareas pudieron migrar en este último caso y finalizar su ejecución más rapidamente. Intuyendo, con estos resultados, que quantums de ciclos muy bajos no son beneficiosos. Lo mejor es encontrar un promedio de la cantidad de ciclos para un quantum dado que para valores mas grandes también se observó que puede tardar más con respecto a otros casos.   
  
- \subsection{3er caso:}
  
- En el último caso se observó el comportamiento para un lote  de tarea. A medida que modificabamos el número de núcleos en los que se ejecutaban las mismas.\newline
+ \subsubsection{Caso 3:}
+ 
+ En el último caso se observó el comportamiento para un lote  de tarea, a medida que modificabamos el número de núcleos en los que se ejecutaban las mismas.\\
+ 
  Las tareas usadas fueron:
  \begin{codesnippet}
 	\begin{verbatim}
@@ -288,24 +300,21 @@ TaskCPU 10
 TaskCPU 4
 	\end{verbatim}
 	\end{codesnippet}
+	\newpage
 	
 	Obteniendo los siguientes resultados:
 
-  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej4/eje4.png} \newline
+  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej4/eje4.png} \\
 \begin {flushleft}
 \textbf{Figura 10:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos con Scheduler Round Robin.
 \end{flushleft}
 
-
-
-
- \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej4/eje6.png} \newline
+ \includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej4/eje6.png} \\
 \begin {flushleft}
 \textbf{Figura 11:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con Scheduler Round Robin.
 \end{flushleft}
  
+ \bigskip
 
 En este último caso quisimos comparar el comportamiento de un mismo lote de tareas cuando modificabamos el número de cores en un Scheduler Round Robin. Lo que observamos fue que cuando se contaba con un número mayor de cores las migraciones de procesos fueron mas frecuentes. Dado que estas no son despreciables y de hecho tienen un costo de 2 ciclos. Al producirse en gran cantidad el tiempo total para la finalización de tareas aumentó considerablemente. Como se observa en la figura 10, hay un gran lapso de tiempo entre la ejecución de una misma tarea. Dado que en cada quantum se ejecutaron en un core distinto. En cambio, en la figura 11 no se prudujeron migraciones, y pese a que se contaba con un core menos el tiempo fue menor. Pudiendo concluir que aunque las migraciones de procesos pueden ser provechosas como se observó en el caso 2 (pág 9). Si se producen en exceso pueden perjudicar la perfomance del procesador.  
 
@@ -313,44 +322,46 @@ En este último caso quisimos comparar el comportamiento de un mismo lote de tar
 
  \subsection{Ejercicio 5: Scheduling algorithms for multiprogramming in a hard-real-time environment}
  
-\textit{A partir del art\'iculo Liu, Chung Laung, and James W. Layland. Scheduling algorithms for multiprogramming in a hard-real-time environment. Journal of the ACM (JACM) 20.1 (1973): 46-61.}\newline
+\textit{A partir del art\'iculo Liu, Chung Laung, and James W. Layland. Scheduling algorithms for multiprogramming in a hard-real-time environment. Journal of the ACM (JACM) 20.1 (1973): 46-61.}
 
-Responda:
-\begin{enumerate}
-\item \textit{¿Qu\'e problema est\'an intentando resolver los autores?}
 
-\item \textit{¿Por qu\'e introducen el algoritmo de la secci\'on 7? ¿Qu\'e problema buscan resolver con esto?}
-
-\item  \textit{Explicar coloquialmente el significado del teorema 7.}
-
-\end{enumerate}
-
-\subsection{a:}
+\subsubsection{¿Qu\'e problema est\'an intentando resolver los autores?}
 
 Frente al avance que se venia produciendo en esos años del uso de las computadoras en distintos procesos industriales. Los autores establecieron que esto se iría masificiando aún más. Y que una correcta aplicación solo es posible cuando se tiene un scheduler eficiente y factible. Sobre todo para aquellos usos en los cuales se requerían que las tareas llevadas al cabo se ejecuten dentro de un lapso de tiempo determinado (a lo cual lo llaman \textit{"hard-real-time"}). Ya que en caso contrario, una respuesta tardía podría provocar un efecto no deseado en una aplicación o no sería de interés. Además intentaron desarollar este tema. Ya que como describen, la mayoría de paper, hasta entonces, estaban orientados a contextos en lo que no había una cota de tiempo para llevar a cabo todas las tareas. Y los que habían, hacían uso de varios supuestos, llevando en algunos casos a situaciones irreales. Por lo que plantearon dos modelos de scheduler para tareas en un entorno de \textit{hard-real-time}. Ambos se basan en fijar prioridades para cada una de las tareas pero, uno de manera estática y el otro dinámicamente. Además para mejorar el rendimiento del mismo buscan establecer cotas (cuando es posible) para determinar si es aplicable alguno de los modelos. De manera que no se produzca \textit{overflow} (alguna de las tareas finalice su ejecución después del tiempo límite).
 
 
-\subsection{b:}
-En la sección 7 se introduce un nuevo algoritmo, el cual es para un scheduler basado en asignaciones de prioridades dinámicamente (llamado \textit{The deadline Driven Scheduling}). Lo introducen como una variante al algoritmo presentado anteriormente (para un scheduler con prioridades fijas). Intentando evitar o disminuir algunos de los problemas presentados para dicho modelo. \newline
+\subsubsection{¿Por qu\'e introducen el algoritmo de la secci\'on 7? ¿Qu\'e problema buscan resolver con esto?}
+En la sección 7 se introduce un nuevo algoritmo, el cual es para un scheduler basado en asignaciones de prioridades dinámicamente (llamado \textit{The deadline Driven Scheduling}). Lo introducen como una variante al algoritmo presentado anteriormente (para un scheduler con prioridades fijas). Intentando evitar o disminuir algunos de los problemas presentados para dicho modelo. \\
+
 Una de los problemas a resolver es mejorar las asignaciones de las prioridades. De manera de aprovechar el procesador a un 100\%. De esta forma, este nuevo algoritmo establece que el nuevo modelo nunca va a ejecutar la idle sino, que siempre se va a estar ejecutando alguna tarea. A diferencia del modelo de prioridades fijas, donde la utilización del procesador podía variar de un 70 a un 100\%. Para conseguir esto, se va a aumentar o disminuir la prioridad de una tarea conforme se acerca a su deadline, es decir las prioridades de una misma tarea van a ser modificadas a lo largo de su ejecución. Además, buscaron determinar si un conjunto de tareas evitara producir overflow, con este algoritmo. En el caso del scheduler con prioridades fijas, se estableció una condición para tal motivo (\textit{teorema 4 $^1$}). Pero, la misma solo es necesaria. Para el scheduler presentado en esta sección se desarrollo una nueva condición, \textit{teorema 7}, la cual garantiza que si se cumple entonces es aplicable el algoritmo y en caso contrario, no lo es (el mismo sera explicado en el siguiente punto). 
   
-\subsection{c:}
+\subsubsection{Explicar coloquialmente el significado del teorema 7.}
 
 Teorema 7:
 \textit {For a given set of m tasks, the deadline driven scheduling algorithm
-is feasible if and only if }\newline
+is feasible if and only if }\\
  
- \textit {$(C_1/T_1)$ + $(C_2/T_2)$ + . . . + $(C_m/T_m)$ $\leq$ 1 } $^2$\newline
+ \textit {$(C_1/T_1)$ + $(C_2/T_2)$ + . . . + $(C_m/T_m)$ $\leq$ 1 } $^2$\\
 
 \textit{Siendo $C_i$ el tiempo de ejecuci\'on para una tarea i, 1 $\leq$ i $\leq$ m, y $T_i$ su respectivo per\'iodo.}
 
-En las secciones anteriores, al presente teorema, se determina que la fracción de CPU que utiliza una tarea en el sistema esta dado por $C_i/T_i$ (\textit{the utilization factor}). Lo que se plantea en este teorema es que un scheduler, para una cantidad m de tareas, es factible y por lo tanto realizable sin que se produzca overflow. Cuando la suma del costo de CPU de cada tarea es menor que uno o igual a 1. Es decir que el ejecutar todas las tareas este dentro de la capacidades del CPU (no supere el 100\% del rendimiento del mismo). Ya que en caso contrario se estaria exigiendo que el CPU trabaje a más límite, lo cual es imposible. \newline
+En las secciones anteriores, al presente teorema, se determina que la fracción de CPU que utiliza una tarea en el sistema esta dado por $C_i/T_i$ (\textit{the utilization factor}). Lo que se plantea en este teorema es que un scheduler, para una cantidad m de tareas, es factible y por lo tanto realizable sin que se produzca overflow. Cuando la suma del costo de CPU de cada tarea es menor que uno o igual a 1. Es decir que el ejecutar todas las tareas este dentro de la capacidades del CPU (no supere el 100\% del rendimiento del mismo). Ya que en caso contrario se estaria exigiendo que el CPU trabaje a más límite, lo cual es imposible. \\
 
+
+\textcolor{red}{Que quisiste poner aca Angel? jajaja}
 
 \footnote[1]{Scheduling Algorithms for Multiprogramming in a HardReal-Time Environment.
-C. L. LIU Project MAC, Massachusetts Institute of Technology AND JAMES W. LAYLAND Jet Propulsion Laboratory, California Institute of Technology. pág 6}\newline
+C. L. LIU Project MAC, Massachusetts Institute of Technology AND JAMES W. LAYLAND Jet Propulsion Laboratory, California Institute of Technology. pág 6}\\
 \footnote[2]{Scheduling Algorithms for Multiprogramming in a HardReal-Time Environment.
 C. L. LIU Project MAC, Massachusetts Institute of Technology AND JAMES W. LAYLAND Jet Propulsion Laboratory, California Institute of Technology. pág 10}
+
+
+
+
+\subsubsection{Scheduler}
+\textit{Dise\~nar e implementar un scheduler basado en prioridades fijas y otro en prioridades din\'amicas. Para eso, complete las clases SchedFixed y SchedDynamic que se encuentran en los archivos sched fixed.[h|cpp] y sched dynamic.[h|cpp] respectivamente.}\\
+
+\textcolor{red}{Aca hablar un poco de la implementacion}
 
 
 
@@ -424,7 +435,7 @@ Si todav\'ia no asign\'e una tarea actual para el mismo, le asigno la primera de
  
 \bigskip 
  
-Para evaluar el comportamiento del Scheduler Round Robin sin migraciones frente al diseñado en la sección 2, Pág 6. Vamos a utilizar el mismo lote de tareas que se uso para este último en los casos 2 y 3. Manteniendo las mismas condiciones en las que fueron obtenidos los resultados.\newline
+Para evaluar el comportamiento del Scheduler Round Robin sin migraciones frente al diseñado en la sección 2, Pág 6. Vamos a utilizar el mismo lote de tareas que se uso para este último en los casos 2 y 3. Manteniendo las mismas condiciones en las que fueron obtenidos los resultados.\\
 De esta forma para el lote de tareas:
  
  \begin{codesnippet}
@@ -441,20 +452,20 @@ TaskConsola 7 4 10
 Se obtuvo como resultado:	
 
 \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej8/2eje1.png} \newline
+]{imagenes/ej8/2eje1.png} \\
 \begin {flushleft}
 \textbf{Figura 12:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 2 y 2 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
 \end{flushleft}	
  
   
   \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej8/2eje2.png} \newline
+]{imagenes/ej8/2eje2.png} \\
 \begin {flushleft}
 \textbf{Figura 13:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 8 y 8 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
 \end{flushleft}	
 
 \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej8/2eje3.png} \newline
+]{imagenes/ej8/2eje3.png} \\
 \begin {flushleft}
 \textbf{Figura 14:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 2 y 8 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
 \end{flushleft}	
@@ -474,17 +485,17 @@ TaskCPU 4
 	\end{verbatim}
 	\end{codesnippet}
 	
-Obtuvimos los siguientes resultados:\newline
+Obtuvimos los siguientes resultados:\\
 	
 \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej8/2eje4.png} \newline
+]{imagenes/ej8/2eje4.png} \\
 \begin {flushleft}
 \textbf{Figura 15:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos con quantums de 3, 2 y 3 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
 \end{flushleft}	
 	
 
 \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej8/2eje6.png} \newline
+]{imagenes/ej8/2eje6.png} \\
 \begin {flushleft}
 \textbf{Figura 17:}Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 5 y 5 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
 \end{flushleft}	
