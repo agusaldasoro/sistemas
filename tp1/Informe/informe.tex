@@ -419,13 +419,17 @@ Luego, para cada ciclo de clock se pregunta si ese momento est\'a indicado para 
  \subsection{Ejercicio 7: Ejecuci\'on lote de tareas TaskBatch}
 \textit{Elegir al menos dos m\'etricas diferentes, definirlas y explicar la sem\'antica de su definici\'on. Dise\~nar un lote de tareas TaskBatch, todas ellas con igual uso de CPU, pero con diversas cantidades de bloqueos. Simular este lote utilizando el algoritmo SchedRR y una variedad apropiada de valores de quantum. Mantener fijo en un (1) ciclo de reloj el costo de cambio de contexto y dos (2) ciclos el de migraci\'on. Deben variar la cantidad de n\'ucleos de procesamiento. Para cada una de las m\'etricas elegidas, concluir cu\'al es el valor \'optimo de quantum a los efectos de dicha m\'etrica.}\\
 
-Las m\'etricas elegidas fueron: Tiempo de Respuesta, TournAround y Waiting Time.\\
+
+
+Las m\'etricas elegidas fueron: Tiempo de Respuesta y TournAround.\\
+
+%Las m\'etricas elegidas fueron: Tiempo de Respuesta, TournAround y Waiting Time.\\
 
 \underline{\emph{Tiempo de Respuesta}}: Tiene en cuenta el tiempo que tarda cada proceso en empezar a ejecutarse desde su primera aparici\'on en \textit{ready}. Cuanto menor tiempo de Respuesta tienen los procesos, el usuario adquiere una mayor interactividad.\\
 
 \underline{\emph{TournAround}}: Tiene en cuenta el tiempo que utiliza un proceso en ejecutarse completamente, es decir desde su primera aparici\'on en \textit{ready} hasta que termina su ejecuci\'on.\\
 
-\underline{\emph{Waiting Time}}: Tiene en cuenta todo el tiempo que el proceso se encuentra en estado Ready (desde que es lanzado hasta su finalizaci\'on).\\
+%\underline{\emph{Waiting Time}}: Tiene en cuenta todo el tiempo que el proceso se encuentra en estado Ready (desde que es lanzado hasta su finalizaci\'on).\\
 
 
 El lote de Tareas TaskBatch dise\~nado es el siguiente:
@@ -444,7 +448,7 @@ TaskBatch 25 9
 	\end{verbatim}
 	\end{codesnippet}
 \newpage	
-	Ejecutamos este lote de tareas, considerando diferentes cantidades de n\'ucleos variando dentro de ellas el quantum de cada uno. En cada caso, tomamos el promedio de los valores de \textit{Tiempo de Respuesta}, \textit{TournAround} y \textit{Waiting Time} para luego comparar cualitativamente.
+	Ejecutamos este lote de tareas, considerando diferentes cantidades de n\'ucleos variando dentro de ellas el quantum de cada uno. En cada caso, tomamos el promedio de los valores de \textit{Tiempo de Respuesta} y \textit{TournAround} para luego comparar cualitativamente.
 	
 	\subsubsection*{1 N\'ucleo}
 	
@@ -455,7 +459,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/1nucleoA.png}
  	\textbf{Tiempo de Respuesta Promedio:} 9.166666667\\
  	\textbf{Tiempo de TournAround Promedio:} 192.6666667\\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
 	
@@ -467,7 +471,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/1nucleoB.png}
  	\textbf{Tiempo de Respuesta Promedio:} 18.5 \\
  	\textbf{Tiempo de TournAround Promedio:} 152.8333333\\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
 	
@@ -478,7 +482,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/1nucleoC.png}
  	\textbf{Tiempo de Respuesta Promedio:} 26.66666667 \\
  	\textbf{Tiempo de TournAround Promedio:} 142.5 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 	
 	
@@ -492,7 +496,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/2nucleoA.png}
  	\textbf{Tiempo de Respuesta Promedio:} 4.5 \\
  	\textbf{Tiempo de TournAround Promedio:} 120 \\
- 	\textbf{Waiting Time Promedio:} \\
+ 	%\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  	
@@ -503,7 +507,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/2nucleoB.png}
  	\textbf{Tiempo de Respuesta Promedio:} 6.333333333\\
  	\textbf{Tiempo de TournAround Promedio:} 94.5\\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  	
@@ -514,7 +518,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/2nucleoC.png}
  	\textbf{Tiempo de Respuesta Promedio:} 10 \\
  	\textbf{Tiempo de TournAround Promedio:} 85.33333333 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  
@@ -528,7 +532,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/3nucleoA.png}
  	\textbf{Tiempo de Respuesta Promedio:} 2.333333333 \\
  	\textbf{Tiempo de TournAround Promedio:} 81.5 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  	
@@ -539,7 +543,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/3nucleoB.png}
  	\textbf{Tiempo de Respuesta Promedio:} 2.166666667 \\
  	\textbf{Tiempo de TournAround Promedio:} 72.66666667 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  	
@@ -550,7 +554,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/3nucleoC.png}
  	\textbf{Tiempo de Respuesta Promedio:} 2.666666667 \\
  	\textbf{Tiempo de TournAround Promedio:} 62.33333333 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  
@@ -564,7 +568,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/4nucleoA.png}
  	\textbf{Tiempo de Respuesta Promedio:} 1.333333333 \\
  	\textbf{Tiempo de TournAround Promedio:} 57.16666667 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  	
@@ -575,7 +579,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/4nucleoB.png}
  	\textbf{Tiempo de Respuesta Promedio:} 1.333333333 \\
  	\textbf{Tiempo de TournAround Promedio:} 53 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  
@@ -586,7 +590,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/4nucleoC.png}
  	\textbf{Tiempo de Respuesta Promedio:} 1.5 \\
  	\textbf{Tiempo de TournAround Promedio:} 48.16666667 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  
@@ -600,7 +604,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/6nucleoA.png}
  	\textbf{Tiempo de Respuesta Promedio:} 1 \\
  	\textbf{Tiempo de TournAround Promedio:} 32.66666667 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  	
@@ -611,7 +615,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/6nucleoB.png}
  	\textbf{Tiempo de Respuesta Promedio:} 1 \\
  	\textbf{Tiempo de TournAround Promedio:} 32.66666667 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
  
@@ -622,7 +626,7 @@ TaskBatch 25 9
  	\includegraphics[scale=0.5]{imagenes/ej7/6nucleoC.png}
  	\textbf{Tiempo de Respuesta Promedio:} 1 \\
  	\textbf{Tiempo de TournAround Promedio:} 32.66666667 \\
- 	\textbf{Waiting Time Promedio:} \\
+ %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
 
