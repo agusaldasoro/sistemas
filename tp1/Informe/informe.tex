@@ -408,8 +408,54 @@ En las secciones anteriores al presente teorema, se determina que la fracción d
  \subsection{Ejercicio 6: TaskBatch}
 \textit{Programar un tipo de tarea TaskBatch que reciba dos par\'ametros: total_cpu y cant_bloqueos. Una tarea de este tipo deber\'a realizar cant bloqueos llamadas bloqueantes, en momentos elegidos pseudoaleatoriamente. En cada tal ocasi\'on, la tarea deber\'a permanecer bloqueada durante exactamente un (1) ciclo de reloj. El tiempo de CPU total que utilice una tarea TaskBatch deber\'a ser de total cpu ciclos de reloj (incluyendo el tiempo utilizado para lanzar las llamadas bloqueantes; no as\'i el tiempo en que la tarea permanezca bloqueada).}
 
+
+\textcolor{red}{Que pasa si no alcanzan los clocks para ejecutar todas esas llamadas bloqueantes?}\\
+
+Nuestra funci\'on arma un vector de \emph{cant_bloqueos} posiciones y les asigna para cada una: un valor pseudoaleatorio, sin repetidos, dentro de su rango de tiempo de ejecuci\'on \emph{total_cpu}. A estos valores se los ordena dentro del arreglo para poder recorrerlo secuencialmente.\\
+
+Luego, para cada ciclo de clock se pregunta si ese momento est\'a indicado para realizar una llamada bloqueante. En caso afirmativo, se ejecuta \textit{uso_IO(pid, 1)}; en caso contrario, \textit{uso_CPU(pid, 1)}.
+
+\bigskip 
  \subsection{Ejercicio 7: Ejecuci\'on lote de tareas TaskBatch}
-\textit{Elegir al menos dos m\'etricas diferentes, definirlas y explicar la sem\'antica de su definici\'on. Dise\~nar un lote de tareas TaskBatch, todas ellas con igual uso de CPU, pero con diversas cantidades de bloqueos. Simular este lote utilizando el algoritmo SchedRR y una variedad apropiada de valores de quantum. Mantener fijo en un (1) ciclo de reloj el costo de cambio de contexto y dos (2) ciclos el de migraci\'on. Deben variar la cantidad de n\'ucleos de procesamiento. Para cada una de las m\'etricas elegidas, concluir cu\'al es el valor \'optimo de quantum a los efectos de dicha m\'etrica.}
+\textit{Elegir al menos dos m\'etricas diferentes, definirlas y explicar la sem\'antica de su definici\'on. Dise\~nar un lote de tareas TaskBatch, todas ellas con igual uso de CPU, pero con diversas cantidades de bloqueos. Simular este lote utilizando el algoritmo SchedRR y una variedad apropiada de valores de quantum. Mantener fijo en un (1) ciclo de reloj el costo de cambio de contexto y dos (2) ciclos el de migraci\'on. Deben variar la cantidad de n\'ucleos de procesamiento. Para cada una de las m\'etricas elegidas, concluir cu\'al es el valor \'optimo de quantum a los efectos de dicha m\'etrica.}\\
+
+Las m\'etricas elegidas fueron: Tiempo de Respuesta, TournAround y Waiting Time.\\
+
+\underline{\emph{Tiempo de Respuesta}}: Tiene en cuenta el tiempo que tarda cada proceso en empezar a ejecutarse desde su primera aparici\'on en \textit{ready}. Cuanto menor tiempo de Respuesta tienen los procesos, el usuario adquiere una mayor interactividad.\\
+
+\underline{\emph{TournAround}}: Tiene en cuenta el tiempo que utiliza un proceso en ejecutarse completamente, es decir desde su primera aparici\'on en \textit{ready} hasta que termina su ejecuci\'on.\\
+
+\underline{\emph{Waiting Time}}: Tiene en cuenta todo el tiempo que el proceso se encuentra en estado Ready (desde que es lanzado hasta su finalizaci\'on).\\
+
+
+El lote de Tareas TaskBatch dise\~nado es el siguiente:
+	\begin{codesnippet}
+	\begin{verbatim}
+TaskBatch 25 3
+TaskBatch 25 7
+@3:
+TaskBatch 25 0
+@5:
+TaskBatch 25 10
+@7:
+TaskBatch 25 5
+@10:
+TaskBatch 25 9
+	\end{verbatim}
+	\end{codesnippet}
+\newpage	
+	Ejecutamos este lote de tareas, considerando diferentes cantidades de n\'ucleos variando dentro de ellas el quantum de cada uno. En cada caso, tomamos el promedio de los valores de \textit{Tiempo de Respuesta}, \textit{TournAround} y \textit{Waiting Time} para luego comparar cualitativamente.
+	
+	\subsubsection*{1 N\'ucleo}
+	
+	\subsubsection*{2 N\'ucleos}
+
+	\subsubsection*{3 N\'ucleos}
+
+	\subsubsection*{4 N\'ucleos}
+	
+	\subsubsection*{6 N\'ucleos}
+
 
 \newpage
  \subsection{Ejercicio 8: Scheduler Round-Robin modificado}
@@ -435,7 +481,7 @@ Las estructuras de datos con las que vamos a trabajar, en la clase \emph{SchedRR
 	\item[•]\textbf{cores} cantidad de n\'ucleos.
 	\item[•]\textbf{quantums} vector de \emph{cores} posiciones, donde quantums[i] es el valor del quantum asignado al core i.
 	\item[•]\textbf{quantus_timer}  vector tal que en quantus_timer[i] se encuentra el valor del quantum restante para la tarea corriendo en el i-esimo núcleo.
-	\item[•]\textbf{actuales} vector que indica el PID de la tarea ejecutandose en el núcleo i (actuales[i]). Para los núcleos sin tarea devuelve la constante $IDLE\_TASK$.
+	\item[•]\textbf{actuales} vector que indica el PID de la tarea ejecutandose en el núcleo i (actuales[i]). Para los núcleos sin tarea devuelve la constante \textit{IDLE\_TASK}.
 	\item[•]\textbf{siguiente} indica el core al que se le debe asignar la próxima tarea.
 	\item[•]\textbf{colas} vector de tuplas. Donde cada posición reresenta a un core y la primer componente de la tupla hacer referencia al número de tareas running + blocked + ready en el mismo. Y la segunda componente es una cola FIFO con los respectivos PID's.  
 	\end{itemize}	
