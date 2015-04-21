@@ -387,17 +387,91 @@ En las secciones anteriores al presente teorema, se determina que la fracción d
 
 
 
-
-
-
-
-
 \subsubsection{Scheduler}
 \textit{Dise\~nar e implementar un scheduler basado en prioridades fijas y otro en prioridades din\'amicas. Para eso, complete las clases SchedFixed y SchedDynamic que se encuentran en los archivos sched fixed.[h|cpp] y sched dynamic.[h|cpp] respectivamente.}\\
 
-\textcolor{red}{Aca hablar un poco de la implementacion}
+\subsection*{Implementaciones:}
+
+\subsection*{Scheduler con prioridades fijas:}
+
+Las estructuras de datos con las que vamos a trabajar, en la clase \emph{SchedFixed}, son las siguientes:
+	\begin{codesnippet}
+	\begin{verbatim}
+		struct datos
+		{
+			int pid;
+			int periodo;
+			bool operator< (const datos& otro) const{ return otro.periodo <= periodo;}
+		};
+		vector<int> periodos;
+		priority_queue<datos> pq;
+};
+	\end{verbatim}
+	\end{codesnippet}
+	
+	\begin{itemize}
+	\item[•]\textbf{struct datos} Diseñado para representar a una tarea, en él se podra encontrar el PID y el período de la misma.
+	\item[•]\textbf{periodos} vector donde cada posición representa un PID (dado que estos se enumeran desde el cero y se van incrementando en uno) en las mismas se encuentra el período que le fue asignado a cada tarea.
+	\item[•]\textbf{pq} cola de prioridad de datos donde la prioridad más alta la tiene aquel dato cuyo periodo es el menor. Dado que se esta implementando el scheduler con prioridades fijas, en él se atribuye que la prioridad esta dada por:\newline
+	$prioridad$ = $1 / periodo$ \newline 
+	Es decir a menor periodo mayor prioridad es por esto que la cola siempre va a devolver como primer elemento, el más priorítario, al perido minimo.
+	\end{itemize}	
+	
+		
+\subsubsection*{Incializando Scheduler Fixed, función initizalize}		
+
+Al construir el Scheduler basado en prioridades fijas, como primer medidad se inizializó \emph{periodos}. El mismo contiene el periodo asignado a cada tarea, para esto se utilizó la función \emph{period} de esta manera en cada posición guardamos el correspondiente período asignado.
+
+\subsubsection*{Funci\'on Load}
+
+Recibe el \emph{pid} de una nueva tarea como par\'ametro. Y procede a crear una tarea del tipo \emph{datos} con el pid recibido y el periodo del mismo que se puede obtener de \emph{periodos} (\emph{peridos[pid]}). Finalizado esto se encola la tarea en \emph{pq}.
+
+\subsubsection*{Funci\'on Tick}	
+
+Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Dado que se produjo un tick se procede a actualizar (de ser necesario) la asignación del \emph{cpu} para las distintas tareas.  Es por esto, que si la tarea que se estaba ejecutando hasta entonces terminó, o si se estaba ejecutando la IDLE, y existe otra tarea en \emph{pq} la próxima a ejecutar será la primera de ella (la de menor período), en caso contrario se ejecutara la IDLE. En el caso de no haber terminado la tarea, se procede a encolarla en \emph{pq}. Si existe una tarea con mayor priodidad sera devuelta como próxima a ejecutar y sino sera la misma que se acabo de encolar.  
 
 
+ 
+\bigskip 
+
+\subsection*{Scheduler con prioridades dinámicas:}
+
+Las estructuras utilizadas, en la clase \emph{SchedDynamic}, son las siguientes:
+	\begin{codesnippet}
+	\begin{verbatim}
+		struct datos
+		{
+			int pid;
+			int deadline;
+			bool operator< (const datos& otro) const{ return otro.deadline <= deadline; }
+		};
+		priority_queue<datos> pq;
+		datos actual;
+		bool primera;
+	\end{verbatim}
+	\end{codesnippet}
+	
+	\begin{itemize}
+	
+	\item[•]\textbf{struct datos} Al igual que para el scheduler anterior, esta diseñado para representar a una tarea en él se podra encontrar el PID y el período de la misma.
+	\item[•]\textbf{pq} cola de prioridad de \emph{datos} donde la prioridad más alta la tiene aquel cuyo deadline sea el menor. Dado que se esta implementando un scheduler con prioridades dinámicas, en el mismo se atribuye que la prioridad mas álta la tiene aquella tarea cuyo deadline esta mas próximo a finalizar. Por lo que pq va a devolver como primer elemento (el más priorítario) a la tarea con deadline mínimo.
+	\item[•]\textbf{actual} va a representar la tarea ejecutandose actualmente.
+	\item[•]\textbf{primera} Se utiliza para saber si hay una tarea asignada a \emph{actual}, la misma se inicializa con True en el constructor.
+	\end{itemize}	
+	
+		
+
+\subsubsection*{Funci\'on Load}
+
+Recibe el \emph{pid} de una nueva tarea como par\'ametro. Y procede a crear la tarea asociada a ese \emph{pid}, el deadline de la misma sera inicialmente su período. Finalizado esto, se encola la tarea en \emph{pq}. En caso de que \emph{primera} sea true se le asigna a \emph{actual} esta última tarea creada.
+
+\subsubsection*{Funci\'on Tick}	
+
+Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Al producirse un tick se procede a actualizar la asignación del \emph{cpu} para las distintas tareas.  Si la que se estaba ejecutando hasta entonces terminó, o si se estaba ejecutando la IDLE, y existe otra tarea en \emph{pq} la primer tarea de la cola será la próxima a ejecutar (la de menor deadline), en caso contrario se ejecutara la IDLE. En el caso de no haber terminado la tarea, se procede a encolar a \emph{actual} en \emph{pq} pero, disminuyendo su deadline en uno ya que la tarea completo un TICK. Si existe una tarea con mayor priodidad sera devuelta como próxima a ejecutar y sino sera la misma que se acaba de encolar.  
+
+
+ 
+\bigskip 
 
 
 
