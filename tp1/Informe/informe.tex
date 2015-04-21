@@ -208,7 +208,7 @@ Si todav\'ia no asign\'e una tarea actual para el n\'ucleo cpu, le asigno la pri
 
 Con el fin de observar el comportamiento del Scheduler basado en la metodolog\'ia Round Robin evaluamos tres casos:
 
-\subsubsection{Caso 1:}
+\subsubsection*{Caso 1}
 
 Ejecutamos el mismo lote de tareas utilizado anteriormente (Secci\'on \ref{ej2}), manteniendo los mismos parametros, para asi poder evaluar y comparar un Scheduler basado en Round Robin y otro en FCFS. 
 
@@ -255,7 +255,7 @@ Un caso interesante para análizar es de la figura 1 y 4. En ambas, solo se util
  En el modelo Round Robin se pudieron aprovechear esos tiempos para ejecutar las otras tareas. Y dado que la tarea con mayor tiempo de ejecución era del tipo TaskConsola, con muchos períodos de bloqueo, el tiempo fue lo suficiente como para ejecutar en su totalidad las otras tareas.  
  \bigskip
  
- \subsubsection{Caso 2:}
+ \subsubsection*{Caso 2}
  
  Para este caso se cre\'o un nuevo lote de tareas y lo que se busco fue: analizar c\'omo varía el tiempo total de ejecución para las mismas, a medida que se cambia el quantum para un total de dos cores.\\
  
@@ -303,7 +303,7 @@ Los resultados obtenidos se acercan a lo esperado \textcolor{red}{Poner qu\'e er
   Lo mejor es encontrar un promedio de la cantidad de ciclos para un quantum dado que para valores mas grandes también se observó que puede tardar más con respecto a otros casos.   
  
  
- \subsubsection{Caso 3:}
+ \subsubsection*{Caso 3}
  
  En el último caso se observó el comportamiento para un lote  de tarea, a medida que modificabamos el número de núcleos en los que se ejecutaban las mismas.\\
  
@@ -448,7 +448,7 @@ TaskBatch 25 9
 	\end{verbatim}
 	\end{codesnippet}
 \newpage	
-	Ejecutamos este lote de tareas, considerando diferentes cantidades de n\'ucleos variando dentro de ellas el quantum de cada uno. En cada caso, tomamos el promedio de los valores de \textit{Tiempo de Respuesta} y \textit{TournAround} para luego comparar cualitativamente.
+	Ejecutamos este lote de tareas, considerando diferentes cantidades de n\'ucleos variando dentro de ellas el quantum de cada uno (En los casos A se eligieron los quantums m\'as chicos, en los C los m\'as grandes y en los B los intermedios). En cada caso, tomamos el promedio de los valores de \textit{Tiempo de Respuesta} y \textit{TournAround} para luego comparar cualitativamente.
 	
 	\subsubsection*{1 N\'ucleo}
 	
@@ -632,18 +632,42 @@ TaskBatch 25 9
 
 \newpage
 
+Luego graficamos los tiempos obtenidos, con el fin de tener una herramienta m\'as declarativa para la comparaci\'on de casos bajo las dos m\'etricas usadas.
+
+\subsubsection*{M\'etrica de Tiempo de Respuesta}
+
+Graficamos los promedios de tiempo de respuesta.
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=1.2]{imagenes/ej7/TiemposResp.png}
    \end{center}
  \end{figure} 
  
+ Acorde a lo que resulta intuitivo, estos valores siempre descienden acorde aumenta la cantidad de cores. Los casos con una cantidad de n\'ucleos mayor a seis fueron descartados, ya que resultan triviales dado a que la cantidad de tareas es seis (son an\'alogos al caso de 6 n\'ucleos dejando el resto ejecutando la Tarea Iddle).
+ 
+ En el gr\'afico se puede apreciar la relaci\'on que preservan los casos A, B y C indiferentemente de la cantidad de n\'ucleos existentes: los casos con quantum de mayor tama\~no arrojaron valores m\'as altos. Este comportamiento se debe a que, al momento de ingresar una tarea debe esperar a que alg\'un core quede libre (es decir, la tarea que estaba ejecutando haya terminado su quantum o quede bloqueada).
+ 
+ En los casos donde la cantidad de tareas es menor o igual a la cantidad de n\'ucleos, el promedio de los tiempos de respuesta siempre va a ser el tiempo que tarde en cargarse una tarea. En nuestro caso este tiempo es 1 clock.\\
+ 
+ De este modo, podemos definir que para tiempos de respuesta \'optimos no s\'olo debemos contar con la mayor cantidad de n\'ucleos posibles (siempre menor igual o a la cantidad de tareas, ya que una cantidad mayor carece de mejoras) sino que tambi\'en con (al menos un) core que tenga un quantum de tama\~no peque\~no. Esto nos asegura que al momento de ingresar una nueva tarea, el tiempo que debe esperar hasta que alg\'un core quede libre es menor.
+
+\newpage
+
+\subsubsection*{M\'etrica de TournAround}
+Graficamos los promedios de tiempos de TournAround.
 
  		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=1.2]{imagenes/ej7/TiemposTournAround.png}
    \end{center}
  \end{figure} 
+ 
+En primera instancia, debemos marcar que el hecho de que la cantidad de cores sea igual a la cantidad de tareas no s\'olo otorga un tiempo peque\~no sino que es el \'optimo ya que al poseer m\'as n\'ucleos estos quedar\'ian libres ejecutando continuamente la Tarea Iddle. Resulta intuitivo marcar que acorde aumenta la cantidad de cores, descienden los promedios de tiempos ya que cada tarea tiene su n\'ucleo para ejecutar sin importar el quantum debido a que nadie la va a desalojar.\\
+
+
+Bajo esta m\'etrica, la relaci\'on que se preserva entre los casos A, B y C es inversamente proporcional a la m\'etrica anterior. Contando con quantums m\'as peque\~nos, el tiempo que lleva ejecutar una tarea en total es menor ya que se ejecuta con una frecuencia m\'as alta. Hay que tener en cuenta que contar con quantums menor es beneficioso en todos los casos mostrados, ya que se us\'o un tiempo de cambio de contexto de 2 clocks lo que resulta un tiempo peque\~no.\\
+
+\textcolor{red}{Habria q decir algo sobre el timepo que pasan bloqueadas? Porque no se me ocurrio que}
  
  \newpage
  \subsection{Ejercicio 8: Scheduler Round-Robin modificado}
