@@ -138,11 +138,8 @@ Al trabajar con un solo core debemos esperar que una tarea finalice para que la 
 
 Al aumentar en una unidad el número de cores: la primer tarea disponible comenzó a ejecutarse. Dado que aun disponemos de otro core; cuando una segunda tarea pas\'o a estar disponible, pudo ser ejecutada al instante por el núcleo adicional. Y cuando uno de los n\'ucleos se desocupó, se ejecutó la última tarea. Gracias a que dos tareas pudieron ejecutarse simult\'aneamente el tiempo total disminuyó. 
 
-Aún más cuando se trabajó con 3 cores, cada tarea pudo ser ejecutada en un núcleo distinto y como pudieron ejecutarse todas a la vez, el tiempo total fue igual al máximo entre $release$ $time_j$ + $c_j$, donde j indica alguna de las tres tareas utilizadas y $c_j$ su tiempo de ejecución.   \\
+Aún más cuando se trabajó con 3 cores, cada tarea pudo ser ejecutada en un núcleo distinto y como pudieron ejecutarse todas a la vez, el tiempo total fue igual al máximo entre $release$ $time_j$ + $c_j$, donde j indica alguna de las tres tareas utilizadas y $c_j$ su tiempo de ejecución.   
 
-Sin embargo, la ejecuci\'on de la tarea Iddle es mayor en el caso de tres n\'ucleos, lo cual produce un \textcolor{red}{Inserte aqui palabra espec\'ifica para esto}. Resulta bastante intuitivo este comportamiento, ya que tenemos tantos n\'ucleos como tareas.\\
-
-\textcolor{red}{Poner algo de los tiempos de blqoueo}
 \newpage
 
 \section{Parte II}
@@ -496,14 +493,13 @@ Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Al producirse un tick se 
 
 
  \subsection{Ejercicio 6: TaskBatch}
-\textit{Programar un tipo de tarea TaskBatch que reciba dos par\'ametros: total_cpu y cant_bloqueos. Una tarea de este tipo deber\'a realizar cant bloqueos llamadas bloqueantes, en momentos elegidos pseudoaleatoriamente. En cada tal ocasi\'on, la tarea deber\'a permanecer bloqueada durante exactamente un (1) ciclo de reloj. El tiempo de CPU total que utilice una tarea TaskBatch deber\'a ser de total cpu ciclos de reloj (incluyendo el tiempo utilizado para lanzar las llamadas bloqueantes; no as\'i el tiempo en que la tarea permanezca bloqueada).}
-
-
-\textcolor{red}{Que pasa si no alcanzan los clocks para ejecutar todas esas llamadas bloqueantes?}\\
+\textit{Programar un tipo de tarea TaskBatch que reciba dos par\'ametros: total_cpu y cant_bloqueos. Una tarea de este tipo deber\'a realizar cant bloqueos llamadas bloqueantes, en momentos elegidos pseudoaleatoriamente. En cada tal ocasi\'on, la tarea deber\'a permanecer bloqueada durante exactamente un (1) ciclo de reloj. El tiempo de CPU total que utilice una tarea TaskBatch deber\'a ser de total cpu ciclos de reloj (incluyendo el tiempo utilizado para lanzar las llamadas bloqueantes; no as\'i el tiempo en que la tarea permanezca bloqueada).}\\
 
 Nuestra funci\'on arma un vector de \emph{cant_bloqueos} posiciones y les asigna para cada una: un valor pseudoaleatorio, sin repetidos, dentro de su rango de tiempo de ejecuci\'on \emph{total_cpu}. A estos valores se los ordena dentro del arreglo para poder recorrerlo secuencialmente.\\
 
-Luego, para cada ciclo de clock se pregunta si ese momento est\'a indicado para realizar una llamada bloqueante. En caso afirmativo, se ejecuta \textit{uso_IO(pid, 1)}; en caso contrario, \textit{uso_CPU(pid, 1)}.
+Luego, para cada ciclo de clock se pregunta si ese momento est\'a indicado para realizar una llamada bloqueante. En caso afirmativo, se ejecuta \textit{uso_IO(pid, 1)}; en caso contrario, \textit{uso_CPU(pid, 1)}.\\
+
+Debemos aclarar que nuestro algoritmo est\'a definido s\'olo para casos donde alcanzan los clocks para ejecutar las llamadas bloqueantes requeridas (el caso contrario no nos es de inter\'es).
 
 \bigskip 
  \subsection{Ejercicio 7: Ejecuci\'on lote de tareas TaskBatch}
@@ -537,8 +533,10 @@ TaskBatch 25 5
 TaskBatch 25 9
 	\end{verbatim}
 	\end{codesnippet}
-\newpage	
+
 	Ejecutamos este lote de tareas, considerando diferentes cantidades de n\'ucleos variando dentro de ellas el quantum de cada uno (En los casos A se eligieron los quantums m\'as chicos, en los C los m\'as grandes y en los B los intermedios). En cada caso, tomamos el promedio de los valores de \textit{Tiempo de Respuesta} y \textit{TournAround} para luego comparar cualitativamente.
+	
+	Para cada caso a tratar, ejecutamos 100 veces el mismo comando para luego sacar un promedio de las mediciones hechas ya que estamos trabajando con n\'umeros (pseudo)random. Exponemos un ejemplo tomado de cada caso a continuaci\'on:
 	
 	\subsubsection*{1 N\'ucleo}
 	
@@ -547,8 +545,8 @@ TaskBatch 25 9
 	 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/1nucleoA.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 9.166666667\\
- 	\textbf{Tiempo de TournAround Promedio:} 192.6666667\\
+ 	\textbf{Tiempo de Respuesta:} 9.166666667\\
+ 	\textbf{Tiempo de TournAround:} 192.6666667\\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -559,8 +557,8 @@ TaskBatch 25 9
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/1nucleoB.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 18.5 \\
- 	\textbf{Tiempo de TournAround Promedio:} 152.8333333\\
+ 	\textbf{Tiempo de Respuesta:} 18.5 \\
+ 	\textbf{Tiempo de TournAround:} 152.8333333\\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -570,8 +568,8 @@ TaskBatch 25 9
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/1nucleoC.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 26.66666667 \\
- 	\textbf{Tiempo de TournAround Promedio:} 142.5 \\
+ 	\textbf{Tiempo de Respuesta:} 26.66666667 \\
+ 	\textbf{Tiempo de TournAround:} 142.5 \\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 	
@@ -584,8 +582,8 @@ TaskBatch 25 9
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/2nucleoA.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 4.5 \\
- 	\textbf{Tiempo de TournAround Promedio:} 120 \\
+ 	\textbf{Tiempo de Respuesta:} 4.5 \\
+ 	\textbf{Tiempo de TournAround:} 120 \\
  	%\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -595,8 +593,8 @@ TaskBatch 25 9
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/2nucleoB.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 6.333333333\\
- 	\textbf{Tiempo de TournAround Promedio:} 94.5\\
+ 	\textbf{Tiempo de Respuesta:} 6.333333333\\
+ 	\textbf{Tiempo de TournAround:} 94.5\\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -606,8 +604,8 @@ TaskBatch 25 9
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/2nucleoC.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 10 \\
- 	\textbf{Tiempo de TournAround Promedio:} 85.33333333 \\
+ 	\textbf{Tiempo de Respuesta:} 10 \\
+ 	\textbf{Tiempo de TournAround:} 85.33333333 \\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -620,8 +618,8 @@ TaskBatch 25 9
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/3nucleoA.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 2.333333333 \\
- 	\textbf{Tiempo de TournAround Promedio:} 81.5 \\
+ 	\textbf{Tiempo de Respuesta:} 2.333333333 \\
+ 	\textbf{Tiempo de TournAround:} 81.5 \\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -631,8 +629,8 @@ TaskBatch 25 9
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/3nucleoB.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 2.166666667 \\
- 	\textbf{Tiempo de TournAround Promedio:} 72.66666667 \\
+ 	\textbf{Tiempo de Respuesta:} 2.166666667 \\
+ 	\textbf{Tiempo de TournAround:} 72.66666667 \\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -642,8 +640,8 @@ TaskBatch 25 9
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/3nucleoC.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 2.666666667 \\
- 	\textbf{Tiempo de TournAround Promedio:} 62.33333333 \\
+ 	\textbf{Tiempo de Respuesta:} 2.666666667 \\
+ 	\textbf{Tiempo de TournAround:} 62.33333333 \\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -656,8 +654,8 @@ TaskBatch 25 9
 		 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/4nucleoA.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 1.333333333 \\
- 	\textbf{Tiempo de TournAround Promedio:} 57.16666667 \\
+ 	\textbf{Tiempo de Respuesta:} 1.333333333 \\
+ 	\textbf{Tiempo de TournAround:} 57.16666667 \\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -667,8 +665,8 @@ TaskBatch 25 9
 			 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/4nucleoB.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 1.333333333 \\
- 	\textbf{Tiempo de TournAround Promedio:} 53 \\
+ 	\textbf{Tiempo de Respuesta:} 1.333333333 \\
+ 	\textbf{Tiempo de TournAround:} 53 \\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -678,8 +676,8 @@ TaskBatch 25 9
 			 \begin{figure}[h!]
    \begin{center}
  	\includegraphics[scale=0.5]{imagenes/ej7/4nucleoC.png}
- 	\textbf{Tiempo de Respuesta Promedio:} 1.5 \\
- 	\textbf{Tiempo de TournAround Promedio:} 48.16666667 \\
+ 	\textbf{Tiempo de Respuesta:} 1.5 \\
+ 	\textbf{Tiempo de TournAround:} 48.16666667 \\
  %	\textbf{Waiting Time Promedio:} \\
    \end{center}
  \end{figure} 
@@ -757,7 +755,9 @@ En primera instancia, debemos marcar que el hecho de que la cantidad de cores se
 
 Bajo esta m\'etrica, la relaci\'on que se preserva entre los casos A, B y C es inversamente proporcional a la m\'etrica anterior. Contando con quantums m\'as peque\~nos, el tiempo que lleva ejecutar una tarea en total es menor ya que se ejecuta con una frecuencia m\'as alta. Hay que tener en cuenta que contar con quantums menor es beneficioso en todos los casos mostrados, ya que se us\'o un tiempo de cambio de contexto de 2 clocks lo que resulta un tiempo peque\~no.\\
 
-\textcolor{red}{Habria q decir algo sobre el timepo que pasan bloqueadas? Porque no se me ocurrio que}
+\bigskip
+ 
+En el caso de ambas m\'etricas tratadas, se utilizaron la ejecuci\'on de cada caso 100 veces. Esto independiza los gr\'aficos obtenidos de los bloqueos que pudieron ser causados, ya que fueron elegidos aleatoriamente. 
  
  \newpage
  \subsection{Ejercicio 8: Scheduler Round-Robin modificado}
