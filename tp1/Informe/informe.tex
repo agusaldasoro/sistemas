@@ -294,14 +294,12 @@ Los resultados obtenidos fueron:\\
 
 \newpage
 
-
-Los resultados obtenidos se acercan a lo esperado \textcolor{red}{Poner qu\'e era lo esperado.}: para quantums muy chicos, el tiempo de ejecución total aumenta frente a otros casos (se puede observar dicho comportamiento en la\textbf{ figura 7}).
-
- Principalmente, cuando se utilizan quantums muy chicos ocurren muchos cambios de contextos. Si su tiempo no es depreciable, aumenta el tiempo total que el procesador necesita para ejecutar todas las tareas. 
+La hipótesis que nos llevo a realizar esta experimentación fue pensar que si los quantums asignados a cada core eran muy bajos, entonces el tiempo total de ejecución para los procesos iba a ser mayor que si se utilizaran quantums con una cantidad de ciclos mayor. 
+Los resultados obtenidos se acercan a lo esperado, para quantums muy chicos el tiempo de ejecución total aumenta frente a otros casos (se puede observar dicho comportamiento en la\textbf{ figura 7}).  Principalmente, cuando se utilizan quantums muy chicos ocurren muchos cambios de contextos. Si su tiempo no es depreciable, aumenta el tiempo total que el procesador necesita para ejecutar todas las tareas. 
  
  Luego, al aumentar el quantum de cada core a 8 (\textbf{figura 8}), observamos que el tiempo total fue menor que para el caso anterior ya que se produjeron menos cambios de contexto. \\
  
- Sin embargo, cuando se usó un quantum bajo y otro de mayor ciclo, el tiempo total bajó con respecto al anterior caso. Podemos atribuir este comportamiento al tipo de tareas con el que trabajamos. 
+ Sin embargo, cuando se usó un quantum bajo y otro de mayor ciclo (\textbf{figura 9}), el tiempo total bajó con respecto al anterior caso. Podemos atribuir este comportamiento al tipo de tareas con el que trabajamos. 
  
  Como se observa, algunas tareas pudieron migrar en este último caso y finalizar su ejecución más rapidamente. Intuyendo, con estos resultados, que quantums de ciclos muy bajos no son beneficiosos.\\
  
@@ -401,6 +399,8 @@ En las secciones anteriores al presente teorema, se determina que la fracción d
 
 \subsection*{Implementaciones:}
 
+Dado el contexto temporal en el que se plantearon ambos scheduler la cantidad de cores con los que los implementaremos será igual a 1.
+
 \subsection*{Scheduler con prioridades fijas:}
 
 Las estructuras de datos con las que vamos a trabajar, en la clase \emph{SchedFixed}, son las siguientes:
@@ -472,10 +472,6 @@ bool primera;
 	\item[•]\textbf{actual} va a representar a la tarea ejecutandose actualmente.
 	\item[•]\textbf{primera} Se utiliza para saber si hay una tarea asignada a \emph{actual}, la misma se inicializa con True en el constructor.
 	\end{itemize}	
-	
-\subsubsection*{Inicializando Scheduler Dynamic, función initizalize}		
-		
-\textcolor{red}{Falta funcion de Inicializar}\\
 
 \subsubsection*{Funci\'on Load}
 
@@ -497,7 +493,7 @@ Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Al producirse un tick se 
 
 Nuestra funci\'on arma un vector de \emph{cant_bloqueos} posiciones y les asigna para cada una: un valor pseudoaleatorio, sin repetidos, dentro de su rango de tiempo de ejecuci\'on \emph{total_cpu}. A estos valores se los ordena dentro del arreglo para poder recorrerlo secuencialmente.\\
 
-Luego, para cada ciclo de clock se pregunta si ese momento est\'a indicado para realizar una llamada bloqueante. En caso afirmativo, se ejecuta \textit{uso_IO(pid, 1)}; en caso contrario, \textit{uso_CPU(pid, 1)}.\\
+Luego, para cada ciclo de clock se pregunta si ese momento est\'a indicado para realizar una llamada bloqueante. En caso afirmativo, se ejecuta \textit{uso_IO(pid 1)}; en caso contrario, \textit{uso_CPU(pid 1)}.\\
 
 Debemos aclarar que nuestro algoritmo est\'a definido s\'olo para casos donde alcanzan los clocks para ejecutar las llamadas bloqueantes requeridas (el caso contrario no nos es de inter\'es).
 
@@ -761,8 +757,7 @@ En el caso de ambas m\'etricas tratadas, se utilizaron la ejecuci\'on de cada ca
  
  \newpage
  \subsection{Ejercicio 8: Scheduler Round-Robin modificado}
- 
-\textcolor{red}{(ME FALTA EXPLICAR ESTAS EXPERIMENTACIONES, PERO VOY A ESTUDIAR PARA METODOS :/ )} \\
+
  
 \textit{Implemente un scheduler Round-Robin que no permita la migraci\'on de procesos entre n\'ucleos (SchedRR2). La asignaci\'on de CPU se debe realizar en el momento en que se produce la carga de un proceso (load). El n\'ucleo correspondiente a un nuevo proceso ser\'a aquel con menor cantidad de procesos activos totales (RUNNING + BLOCKED + READY). Dise\~ne y realice un conjunto de experimentos que permita evaluar comparativamente las dos implementaciones de Round-Robin.}\\
 
@@ -823,46 +818,49 @@ Si todav\'ia no asign\'e una tarea actual para el mismo, le asigno la primera de
  
 \bigskip 
  
-Para evaluar el comportamiento del Scheduler Round Robin sin migraciones frente al diseñado en la Sección \ref{RoundR}, vamos a utilizar el mismo lote de tareas que se us\'o para este último en los casos 2 y 3. Manteniendo las mismas condiciones en las que fueron obtenidos los resultados.\\
+Para evaluar el comportamiento del Scheduler Round Robin sin migraciones frente al diseñado en la Sección \ref{RoundR}, se construyo un lote de 5 tareas. Cada lote esta compuesto por 3 tareas del tipo TaskConsola, donde la cantidad de bloqueos era un valor random entre 1 y 20 al igual que el tiempo mínimo y máximo de bloqueo; y dos del tipo TaskBatch  
+con cantidad de llamadas bloqueantes y tiempo de CPU random entre 1 y 20. Este lote fue ejecutado un total de 10 veces. 
+Para comparar los resultados se útilizó tanto la métrica tiempo de respuesta es decir, la cantidad de tiempo que los procesos tardan en empezar a ejecutarse desde que se encuentran \emph{ready}, como Turnaround (tiempo que les toma ejecutarse completamente). Para ambos casos se utilizó el prómedio de los valores de los distintos lotes mencionados. \newline
+Lor resultados obtenidos fueron los siguientes (los diagramas de Gantt, los lotes de tareas, así como los tiempos obtenidos para cada uno se pueden encontrar en TP1/Informe/imagenes/ej8/Anexo):\newline
+
+\subsection{Tiempo de respuesta:}
+\includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej8/tr.png} \\
+\begin {flushleft}
+\textbf{Figura 12:} Gráfico de lineas para evaluar el tiempo prómedio de respuesta de las tareas bajo un scheduler Round Robin y Round Robin sin migración de procesos (Round Robin2 ) cada core con quantum igual a 3
+\end{flushleft}	
 
 
-De esta forma para el lote de tareas:
- 
- \begin{codesnippet}
-	\begin{verbatim}
-TaskConsola 10 2 6
-TaskCPU 10
-@3:
-TaskCPU 7
-@2:
-TaskConsola 7 4 10
-	\end{verbatim}
-	\end{codesnippet}
-	
-Se obtuvo como resultado:	
 
 \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej8/2eje1.png} \\
+]{imagenes/ej8/trds.png} \\
 \begin {flushleft}
-\textbf{Figura 12:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 2 y 2 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
+\textbf{Figura 13:} Desviación Standard de los datos de la figura 12.
 \end{flushleft}	
- 
-  
-  \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej8/2eje2.png} \\
-\begin {flushleft}
-\textbf{Figura 13:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 8 y 8 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
-\end{flushleft}	
+
+Para esta primera métrica observamos que el tiempo promedio para ambos casos, así como su Desvio Standard son similares. Esto se debe primordialmente al diseño adoptado para ambos Scheduler, como ya se mencionó comenzamos ditribuyendo las primeras n tareas entre los n núcleos disponibles. De esta mánera, el comienzo de la ejecución, así como donde lo realiza, es igual en ambos casos.   
+
+
+\subsection{Turnaround:}
+
 
 \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
-]{imagenes/ej8/2eje3.png} \\
+]{imagenes/ej8/ta.png} \\
 \begin {flushleft}
-\textbf{Figura 14:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 2 y 8 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
+\textbf{Figura 14:} Gráfico de lineas para evaluar el Turnaround prómedio de las tareas bajo un scheduler Round Robin y Round Robin sin migración de procesos (Round Robin2 ) cada core con quantum igual a 3
 \end{flushleft}	
 
-\bigskip
-Y para las tareas: 
-  
+
+
+\includegraphics[width=\textwidth,height=3.0in,keepaspectratio
+]{imagenes/ej8/tads.png} \\
+\begin {flushleft}
+\textbf{Figura 15:} Desviación Standard de los datos de la figura 14.
+\end{flushleft}	
+
+Al momento de evaluar los resultados con la métrica Turnaround nuestra hipótesis fue que para el caso de Round Robin2 los tiempos iban a ser menores, como se puede ver en la figura 14 para el lote de tareas utilizado nuestra hipótesis es correcta. Lo que nos llevó a formular esta hipótesis fue que si un lote de tareas realiza migraciones de procesos en exceso, o en una cantidad no despreciable, esto se iba a ver bruscamente reflejado en el tiempo total que le tomaba ejecutarse. En nuestro caso utilizamos que el costo de migración era igual 2 ya que el cambio de contexto era igual a 1 y atribuimos que migrar un proceso entre cores es mas costoso que un cambio de contexto. Para ver el comportamiento especifico de un lote de tarea usamos las de la pág 9  
+
+
  \begin{codesnippet}
 	\begin{verbatim}
  TaskCPU 7
@@ -875,12 +873,12 @@ TaskCPU 4
 	\end{verbatim}
 	\end{codesnippet}
 	
-Obtuvimos los siguientes resultados:\\
+Al ejecutarlas en el Scheduler Round Robin modificado los resultados fueron los siguientes:\\
 	
 \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
 ]{imagenes/ej8/2eje4.png} \\
 \begin {flushleft}
-\textbf{Figura 15:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos con quantums de 3, 2 y 3 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
+\textbf{Figura 16:} Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 3 n\'ucleos con quantums de 3, 2 y 3 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
 \end{flushleft}	
 	
 
@@ -890,11 +888,15 @@ Obtuvimos los siguientes resultados:\\
 \textbf{Figura 17:}Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 5 y 5 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
 \end{flushleft}	
  
+ 
+ Si comparamos la figura 10 con la 16 y la figura 11 con la número 17 vemos que para los primeros casos el tiempo total de ejecución fue mayor. Se puede observar, en las figuras 10 y 11, que los procesos realizan muchos cambios de migración aumentando el intervalo de tiempo en el que no se estan ejecutando en comparación a las figuras 16 y 17. Si bien no podemos concluir que permitir migraciones sea desfavorable en un Scheduler, lo que podemos decir es que deben realizarse de manera cuidadosa y sin abusar de la cantidad permitida. 
+ 
 \newpage
  \subsection{Ejercicio 9:  Ejecuci\'on lote de tareas}
 \textit{Dise\~nar un lote de tareas cuyo scheduling no sea factible para el algoritmo de prioridades fijas pero s\'i para el algoritmo de prioridades din\'amicas.}
 
-
+\newpage
+ \section{Conclusión:} 
 
 \end{document}
 
