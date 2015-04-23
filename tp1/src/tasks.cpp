@@ -45,8 +45,8 @@ void TaskConsola(int pid, vector<int> params){
 //aplico % (maximo - minimo + 1) (numero entre 0 y maximo-minimo)
 //le sumo minimo (numero entre minimo y maximo)
 	for (int i = 0; i < bloqueantes; ++i){
-//		rand()
-		azar = srand((unsigned) time(NULL)) % (maximo - minimo + 1) + minimo;
+		srand((unsigned) time(NULL));
+		azar = rand() % (maximo - minimo + 1) + minimo;
 		uso_IO(pid, azar);
 	}
 }
@@ -58,8 +58,8 @@ void TaskBatch(int pid, vector<int> params){
 	vector<int> azar(cant_bloqueos);
 //Elijo cant_bloqueos numeros al azar entre 0 y total_cpu-1
 	for (int i = 0; i < cant_bloqueos; ++i){
-//		rand()
-		int random = srand((unsigned) time(NULL)) % total_cpu;
+		srand((unsigned) time(NULL));
+		int random = rand() % total_cpu;
 		azar[i] = random;
 //Si ya lo habia elegido, elijo otro;
 		for (int j = 0; j < i; ++j){
