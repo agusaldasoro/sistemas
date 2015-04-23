@@ -14,7 +14,6 @@
 \contentsline {subsection}{\numberline {3.1}Ejercicio 6: TaskBatch}{15}{subsection.3.1}
 \contentsline {subsection}{\numberline {3.2}Ejercicio 7: Ejecuci\'on lote de tareas TaskBatch}{15}{subsection.3.2}
 \contentsline {subsection}{\numberline {3.3}Ejercicio 8: Scheduler Round-Robin modificado}{23}{subsection.3.3}
-\contentsline {subsection}{\numberline {3.4}Tiempo de respuesta:}{24}{subsection.3.4}
-\contentsline {subsection}{\numberline {3.5}Turnaround:}{25}{subsection.3.5}
-\contentsline {subsection}{\numberline {3.6}Ejercicio 9: Ejecuci\'on lote de tareas}{28}{subsection.3.6}
-\contentsline {section}{\numberline {4}Conclusi\IeC {\'o}n:}{29}{section.4}
+\contentsline {subsubsection}{\numberline {3.3.1}An\'alisis bajo m\'etricas}{24}{subsubsection.3.3.1}
+\contentsline {subsection}{\numberline {3.4}Ejercicio 9: Ejecuci\'on lote de tareas}{28}{subsection.3.4}
+\contentsline {section}{\numberline {4}Conclusi\IeC {\'o}n}{29}{section.4}

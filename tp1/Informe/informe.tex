@@ -60,7 +60,7 @@
 \thispagestyle{empty}
 \vfill
 \begin{abstract}
-El presente trabajo aborda el desarrollo algorítmico de varios Scheduler, como así tambien de tipos de tareas que deberan ejecutar. Se evaluara el comportamiento de cada algoritmo para una serie de tareas dada y como afecta dicho desarrollo si se aplican otros factores como modficaciones en el quantum o en la cantidad de core. Además,  compararemos el rendimiento de distintos Scheduler bajo diversas métricas. 
+El presente trabajo aborda el desarrollo algorítmico de varios Schedulers, como así tambi\'en de tipos de tareas que deber\'an ejecutar. Se evaluar\'a el comportamiento de cada algoritmo para una serie de tareas dadas y, a su vez, c\'omo afecta dicho desarrollo si intervienen otros factores tales como modficaciones en el quantum o en la cantidad de n\'ucleos. Por \'ultimo,  compararemos el rendimiento de distintos Schedulers bajo diversas métricas. 
 \end{abstract}
 
 
@@ -86,7 +86,7 @@ Al momento de ejecutar la tarea \emph{TaskConsola}, lo que realiza nuestro algor
 
 El comportamiento de un Scheduler basado en la t\'ecnica FCFS (First Came, First Served) consiste en ejecutar cada tarea entrante, acorde a su orden de aparici\'on en \textit{ready} sin realizar ninguna interrupci\'on ni cambio de tarea. Cada tarea ejecuta desde su comienzo hasta que finaliza. El lote de tareas que observamos consisti\'o de tres tareas: dos se corresponden el tipo de tarea \textit{TaskConsola} y la restante \textit{TaskCPU} (s\'olo realiza un uso intensivo del CPU -sin bloqueo-). \\
 
-Las tareas utilizadas las siguientes:
+Las tareas utilizadas son las siguientes:
 
 
 	\begin{codesnippet}
@@ -181,7 +181,7 @@ Las estructuras de datos con las que vamos a trabajar, en la clase \emph{SchedRR
 		
 \subsubsection*{Constructor Scheduler Round-Robin}		
 
-Al construir un Scheduler Round-Robin, se instancian las estructuras de datos de modo que: se le asigna la cantidad de cores correspondientes (con sus respectivos quantums), todas las tareas actuales se definen como Iddle, la cola est\'a vac\'ia y el siguiente n\'ucleo que le corresponde ejecutar es el primero ingresado como par\'ametro.
+Al construir un Scheduler Round-Robin, se instancian las estructuras de datos de modo que: se le asigna la cantidad de cores correspondientes (con sus respectivos quantums), todas las tareas actuales se definen como Idle, la cola est\'a vac\'ia y el siguiente n\'ucleo que le corresponde ejecutar es el primero ingresado como par\'ametro.
 
 \subsubsection*{Funci\'on Load}
 
@@ -189,13 +189,13 @@ Recibe el \emph{pid} de una nueva tarea como par\'ametro. Luego, las primeras n 
 
 \subsubsection*{Funci\'on Tick}	
 
-Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Dado que se produjo un tick voy a actualizar el quantum (restarle 1) de la tarea en \emph{cpu}, si no es la Iddle (porque esta corre indefinidamente hasta que la desplace otra tarea). 
+Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Dado que se produjo un tick voy a actualizar el quantum (restarle 1) de la tarea en \emph{cpu}, si no es la Idle (porque esta corre indefinidamente hasta que la desplace otra tarea). 
 Si se acab\'o el quantum de la tarea actual (ya sea porque termin\'o o no) o se bloque\'o, voy a querer actualizar la tarea actual. Para esto, invocó a la funci\'on \emph{next()}. La misma devuelve el \emph{pid} de la próxima tarea a ejecutar en \emph{cpu}.
 
 \subsubsection*{Funci\'on Next}	
 	
 La funci\'on Next tambi\'en va a ser invocada para un s\'olo n\'ucleo \emph{cpu} pasado por par\'ametro.\\
-De este modo, si la tarea que se estaba ejecutando previo a la invocaci\'on de \emph{next()} termin\'o de ejecutarse y la cola se encuentra vac\'ia, la tarea que pondr\'a a ejecutar va a ser la Tarea Iddle.
+De este modo, si la tarea que se estaba ejecutando previo a la invocaci\'on de \emph{next()} termin\'o de ejecutarse y la cola se encuentra vac\'ia, la tarea que pondr\'a a ejecutar va a ser la Tarea Idle.
 Si la tarea que se estaba ejecutando no termin\'o su ejecuci\'on o se bloqueo, se deber\'a encolar en la cola global de pendientes.
 Si todav\'ia no asign\'e una tarea actual para el n\'ucleo cpu, le asigno la primera de la cola d\'andole todo el quantum disponible para el n\'ucleo \emph{cpu}. (Si la cola se encontraba vac\'ia al llamar la funci\'on next() y la tarea ejecut\'andose no hab\'ia conclu\'ido se la encolar\'a para luego volver a asign\'arsela al n\'ucleo).\\
  
@@ -308,7 +308,7 @@ Los resultados obtenidos se acercan a lo esperado, para quantums muy chicos el t
  
  \bigskip
  
- \subsubsection*{Caso 3}
+ \subsubsection*{Caso 3}\label{caso3}
  
  En el último caso se observó el comportamiento para un lote  de tareas, a medida que modificabamos el número de núcleos en los que se ejecutaban las mismas.\\
  
@@ -369,7 +369,7 @@ Por estos motivos, plantearon dos modelos de Scheduler para tareas en un entorno
 \subsubsection{¿Por qu\'e introducen el algoritmo de la secci\'on 7? ¿Qu\'e problema buscan resolver con esto?}
 En la sección 7 se introduce un nuevo algoritmo, el cual es para un scheduler basado en asignaciones de prioridades dinámicamente (llamado \textit{The deadline Driven Scheduling}). Lo introducen como una variante al algoritmo de prioridades fijas (presentado previamente), intentando evitar o disminuir algunos de los problemas presentados para dicho modelo. \\
 
-Una de los problemas a resolver es mejorar las asignaciones de las prioridades, de manera de aprovechar el procesador a un 100\%. A diferencia del modelo de prioridades fijas, donde la utilización del procesador podía variar de un 70\% a un 100\%. De esta forma, este nuevo algoritmo establece que el nuevo modelo nunca va a ejecutar la Tarea Iddle, sino que siempre se va a estar ejecutando alguna tarea. \\
+Una de los problemas a resolver es mejorar las asignaciones de las prioridades, de manera de aprovechar el procesador a un 100\%. A diferencia del modelo de prioridades fijas, donde la utilización del procesador podía variar de un 70\% a un 100\%. De esta forma, este nuevo algoritmo establece que el nuevo modelo nunca va a ejecutar la Tarea Idle, sino que siempre se va a estar ejecutando alguna tarea. \\
 
  Para conseguir esto, se va a aumentar o disminuir la prioridad de una tarea conforme se acerca a su deadline, es decir las prioridades de una misma tarea van a ser modificadas a lo largo de su ejecución. Además, buscaron determinar si un conjunto de tareas evitar\'ia producir overflow, con este algoritmo.\\
  
@@ -438,7 +438,7 @@ Recibe el \emph{pid} de una nueva tarea como par\'ametro. Procede a crear una ta
 
 \subsubsection*{Funci\'on Tick}	
 
-Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Dado que se produjo un tick, se procede a actualizar (de ser necesario) la asignación del \emph{cpu} para las distintas tareas.  Es por esto, que si la tarea que se estaba ejecutando hasta entonces terminó, o si se estaba ejecutando la IDDLE, y existe otra tarea en \emph{pq}; la próxima a ejecutar será la primera de ella (la de menor período), en caso contrario se ejecutara la IDDLE. 
+Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Dado que se produjo un tick, se procede a actualizar (de ser necesario) la asignación del \emph{cpu} para las distintas tareas.  Es por esto, que si la tarea que se estaba ejecutando hasta entonces terminó, o si se estaba ejecutando la IDLE, y existe otra tarea en \emph{pq}; la próxima a ejecutar será la primera de ella (la de menor período), en caso contrario se ejecutara la IDLE. 
 
 En el caso de no haber terminado la tarea, se procede a encolarla en \emph{pq}. Si existe una tarea con mayor priodidad, ser\'a devuelta como próxima a ejecutar y sino ser\'a la misma que se acab\'o de encolar. \\ 
 
@@ -467,7 +467,7 @@ bool primera;
 	
 	\begin{itemize}
 	
-	\item[•]\textbf{struct datos} Al igual que para el scheduler anterior, est\'a diseñado para representar a una tarea. En él, se encontrar\'a el \emph{PID} y el \emph{per\'iodo} de la misma.
+	\item[•]\textbf{struct datos} Al igual que para el scheduler anterior, est\'a diseñado para representar a una tarea. En él, se encontrar\'a el \emph{PID} y el \emph{deadline} de la misma.
 	\item[•]\textbf{pq} cola de prioridad de \emph{datos} donde la prioridad más alta la tiene aquel cuyo deadline sea el menor. Como se est\'a implementando un scheduler con prioridades dinámicas, en el mismo se atribuye que la prioridad mas álta la tiene aquella tarea cuyo deadline esta mas próximo a finalizar. Por lo que \emph{pq} va a devolver como primer elemento (el de mayor prioridad) a la tarea con deadline m\'inimo.
 	\item[•]\textbf{actual} va a representar a la tarea ejecutandose actualmente.
 	\item[•]\textbf{primera} Se utiliza para saber si hay una tarea asignada a \emph{actual}, la misma se inicializa con True en el constructor.
@@ -479,7 +479,7 @@ Recibe el \emph{pid} de una nueva tarea como par\'ametro y procede a crear la ta
 
 \subsubsection*{Funci\'on Tick}	
 
-Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Al producirse un tick se procede a actualizar la asignación del \emph{cpu} para las distintas tareas.  Si la que se estaba ejecutando hasta entonces terminó, o si se estaba ejecutando la IDDLE, y existe otra tarea en \emph{pq}: la primer tarea de la cola será la próxima a ejecutar (la de menor deadline), en caso contrario se ejecutara la IDDLE. En el caso de no haber terminado la tarea, se procede a encolar a \emph{actual} en \emph{pq} pero, disminuyendo su deadline en uno ya que la tarea completo un TICK. Si existe una tarea con mayor prioridad, ser\'a devuelta como próxima a ejecutar y sino, ser\'a la misma que se acaba de encolar.  
+Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Al producirse un tick se procede a actualizar la asignación del \emph{cpu} para las distintas tareas.  Si la que se estaba ejecutando hasta entonces terminó, o si se estaba ejecutando la IDLE, y existe otra tarea en \emph{pq}: la primer tarea de la cola será la próxima a ejecutar (la de menor deadline), en caso contrario se ejecutara la IDLE. En el caso de no haber terminado la tarea, se procede a encolar a \emph{actual} en \emph{pq} pero, disminuyendo su deadline en uno ya que la tarea completo un TICK. Si existe una tarea con mayor prioridad, ser\'a devuelta como próxima a ejecutar y sino, ser\'a la misma que se acaba de encolar.  
 
 
 
@@ -727,7 +727,7 @@ Graficamos los promedios de tiempo de respuesta.
    \end{center}
  \end{figure} 
  
- Acorde a lo que resulta intuitivo, estos valores siempre descienden acorde aumenta la cantidad de cores. Los casos con una cantidad de n\'ucleos mayor a seis fueron descartados, ya que resultan triviales dado a que la cantidad de tareas es seis (son an\'alogos al caso de 6 n\'ucleos dejando el resto ejecutando la Tarea Iddle).
+ Acorde a lo que resulta intuitivo, estos valores siempre descienden acorde aumenta la cantidad de cores. Los casos con una cantidad de n\'ucleos mayor a seis fueron descartados, ya que resultan triviales dado a que la cantidad de tareas es seis (son an\'alogos al caso de 6 n\'ucleos dejando el resto ejecutando la Tarea Idle).
  
  En el gr\'afico se puede apreciar la relaci\'on que preservan los casos A, B y C indiferentemente de la cantidad de n\'ucleos existentes: los casos con quantum de mayor tama\~no arrojaron valores m\'as altos. Este comportamiento se debe a que, al momento de ingresar una tarea debe esperar a que alg\'un core quede libre (es decir, la tarea que estaba ejecutando haya terminado su quantum o quede bloqueada).
  
@@ -746,7 +746,7 @@ Graficamos los promedios de tiempos de TournAround.
    \end{center}
  \end{figure} 
  
-En primera instancia, debemos marcar que el hecho de que la cantidad de cores sea igual a la cantidad de tareas no s\'olo otorga un tiempo peque\~no sino que es el \'optimo ya que al poseer m\'as n\'ucleos estos quedar\'ian libres ejecutando continuamente la Tarea Iddle. Resulta intuitivo marcar que acorde aumenta la cantidad de cores, descienden los promedios de tiempos ya que cada tarea tiene su n\'ucleo para ejecutar sin importar el quantum debido a que nadie la va a desalojar.\\
+En primera instancia, debemos marcar que el hecho de que la cantidad de cores sea igual a la cantidad de tareas no s\'olo otorga un tiempo peque\~no sino que es el \'optimo ya que al poseer m\'as n\'ucleos estos quedar\'ian libres ejecutando continuamente la Tarea Idle. Resulta intuitivo marcar que acorde aumenta la cantidad de cores, descienden los promedios de tiempos ya que cada tarea tiene su n\'ucleo para ejecutar sin importar el quantum debido a que nadie la va a desalojar.\\
 
 
 Bajo esta m\'etrica, la relaci\'on que se preserva entre los casos A, B y C es inversamente proporcional a la m\'etrica anterior. Contando con quantums m\'as peque\~nos, el tiempo que lleva ejecutar una tarea en total es menor ya que se ejecuta con una frecuencia m\'as alta. Hay que tener en cuenta que contar con quantums menor es beneficioso en todos los casos mostrados, ya que se us\'o un tiempo de cambio de contexto de 2 clocks lo que resulta un tiempo peque\~no.\\
@@ -795,7 +795,7 @@ Las estructuras de datos con las que vamos a trabajar, en la clase \emph{SchedRR
 		
 \subsubsection*{Constructor Scheduler Round-Robin Modificado}		
 
-Al construir un Scheduler Round-Robin sin migración de procesos, empezamos por instanciar las estructuras de datos de modo que: a \emph{cores} se le asigna la cantidad de cores correspondientes. A \emph{quantums\_timer} los respectivos quantums; Todas las tareas actuales se definen como Iddle en \emph{actuales}; Se inicia cada tupla de \emph{colas} en cero ya que aún no hay tareas y las colas vacias; Por último \emph{siguiente} es el n\'ucleo al que le corresponde ejecutar la primer tarea, es decir al 0.
+Al construir un Scheduler Round-Robin sin migración de procesos, empezamos por instanciar las estructuras de datos de modo que: a \emph{cores} se le asigna la cantidad de cores correspondientes. A \emph{quantums\_timer} los respectivos quantums; Todas las tareas actuales se definen como Idle en \emph{actuales}; Se inicia cada tupla de \emph{colas} en cero ya que aún no hay tareas y las colas vacias; Por último \emph{siguiente} es el n\'ucleo al que le corresponde ejecutar la primer tarea, es decir al 0.
 
 \subsubsection*{Funci\'on Load}
 
@@ -810,7 +810,7 @@ Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Dado que se produjo un ti
 \subsubsection*{Funci\'on Next}	
 	
 
-Si la tarea que se estaba ejecutando previo a la invocaci\'on de \emph{next()} termin\'o de ejecutarse y la cola se encuentra vac\'ia, la tarea que pondr\'a a ejecutar va a ser la Tarea Iddle y se actualiza el número que indica cuantas tareas hay en ese cpu.
+Si la tarea que se estaba ejecutando previo a la invocaci\'on de \emph{next()} termin\'o de ejecutarse y la cola se encuentra vac\'ia, la tarea que pondr\'a a ejecutar va a ser la Tarea Idle y se actualiza el número que indica cuantas tareas hay en ese cpu.
 
 Si la tarea que se estaba ejecutando no termin\'o su ejecuci\'on o se bloqueo, se deber\'a encolar en la cola del \emph{cpu} pasado por parametro.
 
@@ -818,12 +818,17 @@ Si todav\'ia no asign\'e una tarea actual para el mismo, le asigno la primera de
  
 \bigskip 
  
-Para evaluar el comportamiento del Scheduler Round Robin sin migraciones frente al diseñado en la Sección \ref{RoundR}, se construyo un lote de 5 tareas. Cada lote esta compuesto por 3 tareas del tipo TaskConsola, donde la cantidad de bloqueos era un valor random entre 1 y 20 al igual que el tiempo mínimo y máximo de bloqueo; y dos del tipo TaskBatch  
-con cantidad de llamadas bloqueantes y tiempo de CPU random entre 1 y 20. Este lote fue ejecutado un total de 10 veces. 
-Para comparar los resultados se útilizó tanto la métrica tiempo de respuesta es decir, la cantidad de tiempo que los procesos tardan en empezar a ejecutarse desde que se encuentran \emph{ready}, como Turnaround (tiempo que les toma ejecutarse completamente). Para ambos casos se utilizó el prómedio de los valores de los distintos lotes mencionados. \newline
-Lor resultados obtenidos fueron los siguientes (los diagramas de Gantt, los lotes de tareas, así como los tiempos obtenidos para cada uno se pueden encontrar en TP1/Informe/imagenes/ej8/Anexo):\newline
+\subsubsection{An\'alisis bajo m\'etricas} 
+ 
+Para evaluar el comportamiento del Scheduler Round Robin sin migraciones frente al diseñado en la Sección \ref{RoundR}, se construy\'o un lote de 5 tareas. Cada lote est\'a compuesto por 3 tareas del tipo TaskConsola, donde la cantidad de bloqueos es un valor random entre 1 y 20, al igual que el tiempo mínimo y máximo de bloqueo; y dos del tipo TaskBatch con cantidad de llamadas bloqueantes y tiempo de CPU random entre 1 y 20. Este lote fue ejecutado un total de 10 veces.\\
 
-\subsection{Tiempo de respuesta:}
+
+Para comparar los resultados, se útilizó tanto la métrica tiempo de respuesta es decir, la cantidad de tiempo que los procesos tardan en empezar a ejecutarse desde que se encuentran \emph{ready}, como la m\'etrica Turnaround (tiempo que les toma ejecutarse completamente). Para ambos casos se utilizó el promedio de los valores de los distintos lotes mencionados. \\
+
+Lor resultados obtenidos fueron los detallados a continuaci\'on. \footnote{Los diagramas de Gantt, los lotes de tareas, así como los tiempos obtenidos para cada uno se pueden encontrar en \textcolor{red}{Aca escribir el path del archivo}}
+
+\newpage
+\subsubsection*{An\'alisis de tiempo de respuesta}
 \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
 ]{imagenes/ej8/tr.png} \\
 \begin {flushleft}
@@ -838,10 +843,10 @@ Lor resultados obtenidos fueron los siguientes (los diagramas de Gantt, los lote
 \textbf{Figura 13:} Desviación Standard de los datos de la figura 12.
 \end{flushleft}	
 
-Para esta primera métrica observamos que el tiempo promedio para ambos casos, así como su Desvio Standard son similares. Esto se debe primordialmente al diseño adoptado para ambos Scheduler, como ya se mencionó comenzamos ditribuyendo las primeras n tareas entre los n núcleos disponibles. De esta mánera, el comienzo de la ejecución, así como donde lo realiza, es igual en ambos casos.   
+Para esta primera métrica observamos que el tiempo promedio para ambos casos, así como su Desvio Standard, son similares. Esto se debe primordialmente al diseño adoptado para ambos Schedulers, como ya se mencionó, comenzamos ditribuyendo las primeras n tareas entre los n núcleos disponibles. De esta mánera, el comienzo de la ejecución, así como donde lo realiza, es igual en ambos casos.   
 
 
-\subsection{Turnaround:}
+\subsubsection*{An\'alisis de TurnAround}
 
 
 \includegraphics[width=\textwidth,height=3.0in,keepaspectratio
@@ -858,7 +863,11 @@ Para esta primera métrica observamos que el tiempo promedio para ambos casos, a
 \textbf{Figura 15:} Desviación Standard de los datos de la figura 14.
 \end{flushleft}	
 
-Al momento de evaluar los resultados con la métrica Turnaround nuestra hipótesis fue que para el caso de Round Robin2 los tiempos iban a ser menores, como se puede ver en la figura 14 para el lote de tareas utilizado nuestra hipótesis es correcta. Lo que nos llevó a formular esta hipótesis fue que si un lote de tareas realiza migraciones de procesos en exceso, o en una cantidad no despreciable, esto se iba a ver bruscamente reflejado en el tiempo total que le tomaba ejecutarse. En nuestro caso utilizamos que el costo de migración era igual 2 ya que el cambio de contexto era igual a 1 y atribuimos que migrar un proceso entre cores es mas costoso que un cambio de contexto. Para ver el comportamiento especifico de un lote de tarea usamos las de la pág 9  
+Al momento de evaluar los resultados con la métrica Turnaround nuestra hipótesis fue que para el caso de Round Robin2 los tiempos iban a ser menores, como se puede ver en la \textbf{figura 14}, para el lote de tareas utilizado nuestra hipótesis es correcta. 
+
+Lo que nos llevó a formular esta hipótesis fue que si un lote de tareas realiza migraciones de procesos en exceso, o en una cantidad no despreciable, se va a ver bruscamente reflejado en el tiempo total que le toma ejecutarse. En nuestro caso, utilizamos que el costo de migración era igual a 2 (ya que el cambio de contexto era igual a 1) y atribuimos que migrar un proceso entre cores es m\'as costoso que un cambio de contexto.\\
+
+ Para ver el comportamiento espec\'ifico de un lote de tareas, usamos las del ejercicio 4, caso 3, Secci\'on: \ref{caso3}, las cuales se detallan a continuaci\'on:
 
 
  \begin{codesnippet}
@@ -888,15 +897,17 @@ Al ejecutarlas en el Scheduler Round Robin modificado los resultados fueron los 
 \textbf{Figura 17:}Diagrama de Gantt para la ejecuci\'on del lote de tareas bajo 2 n\'ucleos con quantums de 5 y 5 ciclos respectivamente. En un Scheduler Round Robin sin migración de procesos.
 \end{flushleft}	
  
+ \bigskip
+ Si comparamos la\textbf{ figura 10} con la \textbf{16} y la\textbf{ figura 11} con la número \textbf{17} vemos que para los primeros casos el tiempo total de ejecución fue mayor. Se puede observar, en las \textbf{figuras 10} y \textbf{11}, que los procesos realizan muchos cambios de migración aumentando el intervalo de tiempo en el que no se estan ejecutando en comparación a las \textbf{figuras 16} y \textbf{17}. \\
  
- Si comparamos la figura 10 con la 16 y la figura 11 con la número 17 vemos que para los primeros casos el tiempo total de ejecución fue mayor. Se puede observar, en las figuras 10 y 11, que los procesos realizan muchos cambios de migración aumentando el intervalo de tiempo en el que no se estan ejecutando en comparación a las figuras 16 y 17. Si bien no podemos concluir que permitir migraciones sea desfavorable en un Scheduler, lo que podemos decir es que deben realizarse de manera cuidadosa y sin abusar de la cantidad permitida. 
+ Si bien no podemos concluir que permitir migraciones sea desfavorable en un Scheduler, lo que podemos decir es que deben realizarse de manera cuidadosa y sin abusar de la cantidad permitida. 
  
 \newpage
  \subsection{Ejercicio 9:  Ejecuci\'on lote de tareas}
 \textit{Dise\~nar un lote de tareas cuyo scheduling no sea factible para el algoritmo de prioridades fijas pero s\'i para el algoritmo de prioridades din\'amicas.}
 
 \newpage
- \section{Conclusión:} 
+ \section{Conclusión} 
 
 \end{document}
 
