@@ -932,7 +932,7 @@ Y al ejecutarlas bajo el M\'etodo Dynamic, obtuvimos el siguiente diagrama:
 
 Se puede observar c\'omo las tareas se ejecutaron completas y sin interrupciones, respetando sus deadlines en el Dynamic. No es as\'i en el caso del Fixed.\\
 
-Esto se debe a que la tareas B tienen una frecuencia \textcolor{red}{m\'as chica?}, por este motivo el Algoritmo de Prioridades Fijas decide interrumpir la ejecuci\'on de la Tarea A para que ejecute B. B se ejecuta hasta su finalizaci\'on y luego contin\'ua ejecutando A, pero esta vuelve a ser interrumpida por la aparici\'on de la segunda tarea B para continuar su ejecuci\'on cuando B finalice. Este retardo en ejecutar (o mejor dicho terminar de ejecutar) la tarea, provoca que exceda su deadline ya que la nueva tarea A es lanzada mientras todav\'ia est\'a ejecutando.  Por este motivo, estas tareas no son factibles bajo el contexto del Algoritmo Fixed.\\
+Esto se debe a que la tareas B tienen una frecuencia m\'as chica, por este motivo el Algoritmo de Prioridades Fijas decide interrumpir la ejecuci\'on de la Tarea A para que ejecute B. B se ejecuta hasta su finalizaci\'on y luego contin\'ua ejecutando A, pero esta vuelve a ser interrumpida por la aparici\'on de la segunda tarea B para continuar su ejecuci\'on cuando B finalice. Este retardo en ejecutar (o mejor dicho terminar de ejecutar) la tarea, provoca que exceda su deadline ya que la nueva tarea A es lanzada mientras todav\'ia est\'a ejecutando.  Por este motivo, estas tareas no son factibles bajo el contexto del Algoritmo Fixed.\\
 
 En cambio, al momento de que estas tareas fueron ejecutadas en un Scheduler din\'amico las prioridades fueron dadas acorde a su deadline, es decir de modo que finalicen antes que la tarea sucesora sea ejecutada. Es por este motivo que nuestro lote de tareas efect\'ua un lote factible bajo el contexto del Algoritmo Dynamic.
 
@@ -942,6 +942,20 @@ En cambio, al momento de que estas tareas fueron ejecutadas en un Scheduler din\
 
 \newpage
  \section{Conclusión} 
+
+A lo largo de este trabajo hemos experimentado con diversas tareas, tales como: TaskCPU, TaskConsola, TaskBatch. Cada una de las tareas utilizadas pose\'ia un comportamiento diferente: teniendo interrupciones o ejecutando s\'olo haciendo uso del CPU y tambi\'en conteniendo (o no) elementos aleatorios.
+
+Estos modelos variantes conforman un conjunto (acotado) de tareas con las que se enfrenta un Sistema Operativo en el transcurso de su ejecuci\'on.\\
+
+Con el fin de cederle tiempo de CPU a cada tarea que quiere ejecutarse, implementamos y utillizamos distintos Schedulers: FCFS, Round-Robin, con prioridades fijas y din\'amicas. Cada uno de ellos posee distintas pol\'iticas de desalojo y de prioridades frente al lote de tareas \emph{ready} para ejecutar.
+
+De acuerdo a la M\'etrica utilizada, pudimos decidir cu\'ando un Scheduler consist\'ia en una decisi\'on ``mejor'' que otro.\\
+
+Al momento de armar un Scheduler, es importante tener en cuenta su contexto de uso y qu\'e tipo de tareas va a arbitrar. Por ej. si contamos con un lote de tareas que posee (muchos) bloqueos no es conveniente utilizar un algoritmo de Scheduling del tipo FCFS, ya que el tiempo que la tarea permanece bloqueada es tiempo que el procesador no ejerce ning\'un uso. Del mismo modo, si trabajamos en un contexto donde es esencial la ejecuci\'on de determinada tarea antes de su deadline, lo conveniente ser\'ia utilizar un Algoritmo de Scheduling con prioridades Din\'amicas.\\
+
+
+Por \'ultimo, es importante destacar que no s\'olo hay que optimizar el Scheduler que se utiliza sino que tambi\'en la cantidad de n\'ucleos con los que se cuenta ya que esto interfiere en la performance de la ejecuci\'on de lotes de tareas, otorgando una situaci\'on de paralelismo que resulta beneficiosa a nivel de finalizaci\'on de la ejecuci\'on de las tareas. 
+
 
 \end{document}
 
