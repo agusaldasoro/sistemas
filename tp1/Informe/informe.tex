@@ -904,7 +904,41 @@ Al ejecutarlas en el Scheduler Round Robin modificado los resultados fueron los 
  
 \newpage
  \subsection{Ejercicio 9:  Ejecuci\'on lote de tareas}
-\textit{Dise\~nar un lote de tareas cuyo scheduling no sea factible para el algoritmo de prioridades fijas pero s\'i para el algoritmo de prioridades din\'amicas.}
+\textit{Dise\~nar un lote de tareas cuyo scheduling no sea factible para el algoritmo de prioridades fijas pero s\'i para el algoritmo de prioridades din\'amicas.}\\
+
+El lote de tareas que confeccionamos es el detallado a continuaci\'on:
+
+	\begin{codesnippet}
+	\begin{verbatim}
+&A2, 4, 2
+@2
+&B2, 3, 1
+	\end{verbatim}
+	\end{codesnippet}
+
+Este lote consiste de dos tareas de tipo TaskCPU, que duran dos unidades de tiempo cada una ejecutadas con una diferencia de 4 unidades. Y por otro lado, dos tareas tambi\'en de tipo TaskCPU, que duran una unidad de tiempo y son ejecutadas con una diferencia de 4.\\
+
+\bigskip
+
+Al ejecutarlas bajo el M\'etodo Fixed, el diagrama de Gantt obtenido fue el siguiente:
+
+\includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej9/fixed.png} 
+\bigskip
+Y al ejecutarlas bajo el M\'etodo Dynamic, obtuvimos el siguiente diagrama:
+
+\includegraphics[width=\textwidth,height=3.0in,keepaspectratio]{imagenes/ej9/dynamic.png} 
+
+\bigskip
+
+Se puede observar c\'omo las tareas se ejecutaron completas y sin interrupciones, respetando sus deadlines en el Dynamic. No es as\'i en el caso del Fixed.\\
+
+Esto se debe a que la tareas B tienen una frecuencia \textcolor{red}{m\'as chica?}, por este motivo el Algoritmo de Prioridades Fijas decide interrumpir la ejecuci\'on de la Tarea A para que ejecute B. B se ejecuta hasta su finalizaci\'on y luego contin\'ua ejecutando A, pero esta vuelve a ser interrumpida por la aparici\'on de la segunda tarea B para continuar su ejecuci\'on cuando B finalice. Este retardo en ejecutar (o mejor dicho terminar de ejecutar) la tarea, provoca que exceda su deadline ya que la nueva tarea A es lanzada mientras todav\'ia est\'a ejecutando.  Por este motivo, estas tareas no son factibles bajo el contexto del Algoritmo Fixed.\\
+
+En cambio, al momento de que estas tareas fueron ejecutadas en un Scheduler din\'amico las prioridades fueron dadas acorde a su deadline, es decir de modo que finalicen antes que la tarea sucesora sea ejecutada. Es por este motivo que nuestro lote de tareas efect\'ua un lote factible bajo el contexto del Algoritmo Dynamic.
+
+
+
+
 
 \newpage
  \section{Conclusión} 
