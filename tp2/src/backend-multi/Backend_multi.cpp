@@ -1,5 +1,5 @@
 #include "Backend_multi.h"
-
+#include "RWLock.h"
 
 using namespace std;
 
@@ -14,6 +14,7 @@ unsigned int ancho = -1;
 unsigned int alto = -1;
 
 pthread_mutex_t mutex_thread;
+vector<vector<RWLock> > rwlockTablero;
 
 bool cargar_int(const char* numero, unsigned int& n) {
     char *eptr;
@@ -57,6 +58,11 @@ int main(int argc, const char* argv[]) {
         tablero_palabras[i] = vector<char>(ancho, VACIO);
     }
 
+    rwlockTablero = vector<vector<RWLock> >(alto);
+    for (unsigned int i = 0; i < alto; ++i) {
+        rwlockTablero[i] = vector<RWLock>(ancho, RWLock());
+    }
+
     int socketfd_cliente, socket_size;
     struct sockaddr_in local, remoto;
 
@@ -91,10 +97,9 @@ int main(int argc, const char* argv[]) {
         if ((socketfd_cliente = accept(socket_servidor, (struct sockaddr*) &remoto, (socklen_t*) &socket_size)) == -1)
             cerr << "Error al aceptar conexion" << endl;
         else {
-//            close(socket_servidor);
+            //creamos un thread para cada cliente
             pthread_t thread;
             pthread_create(&thread, NULL, (void* (*)(void*)) atendedor_de_jugador, (void *) &socketfd_cliente);
-//            atendedor_de_jugador(socketfd_cliente);
         }
     }
 
@@ -104,6 +109,7 @@ int main(int argc, const char* argv[]) {
 
 
 void atendedor_de_jugador(int* socket_fd) {
+    //guardamos el socket de cada cliente para que no se pierda, porque se paso por rereferencia y se modifica en los accept
     pthread_mutex_lock(&mutex_thread);
     int sockAUX = *socket_fd;
     pthread_mutex_unlock(&mutex_thread);
@@ -138,7 +144,9 @@ void atendedor_de_jugador(int* socket_fd) {
             // verificar si es una posición válida del tablero
             if (es_ficha_valida_en_palabra(ficha, palabra_actual)) {
                 palabra_actual.push_back(ficha);
+                rwlockTablero[ficha.fila][ficha.columna].wlock();
                 tablero_letras[ficha.fila][ficha.columna] = ficha.letra;
+                rwlockTablero[ficha.fila][ficha.columna].wunlock();
                 // OK
                 if (enviar_ok(sockAUX) != 0) {
                     // se produjo un error al enviar. Cerramos todo.
@@ -157,7 +165,9 @@ void atendedor_de_jugador(int* socket_fd) {
         else if (comando == MSG_PALABRA) {
             // las letras acumuladas conforman una palabra completa, escribirlas en el tablero de palabras y borrar las letras temporales
             for (list<Casillero>::const_iterator casillero = palabra_actual.begin(); casillero != palabra_actual.end(); casillero++) {
+                rwlockTablero[casillero->fila][casillero->columna].wlock();
                 tablero_palabras[casillero->fila][casillero->columna] = casillero->letra;
+                rwlockTablero[casillero->fila][casillero->columna].wunlock();
             }
             palabra_actual.clear();
 
@@ -259,7 +269,9 @@ int enviar_tablero(int socket_fd) {
     int pos = 7;
     for (unsigned int fila = 0; fila < alto; ++fila) {
         for (unsigned int col = 0; col < ancho; ++col) {
+            rwlockTablero[fila][col].rlock();
             char letra = tablero_palabras[fila][col];
+            rwlockTablero[fila][col].runlock();
             buf[pos] = (letra == VACIO)? '-' : letra;
             pos++;
         }
@@ -304,7 +316,9 @@ void terminar_servidor_de_jugador(int socket_fd, list<Casillero>& palabra_actual
 
 void quitar_letras(list<Casillero>& palabra_actual) {
     for (list<Casillero>::const_iterator casillero = palabra_actual.begin(); casillero != palabra_actual.end(); casillero++) {
+        rwlockTablero[casillero->fila][casillero->columna].wlock();
         tablero_letras[casillero->fila][casillero->columna] = VACIO;
+        rwlockTablero[casillero->fila][casillero->columna].wunlock();
     }
     palabra_actual.clear();
 }
@@ -339,9 +353,12 @@ bool es_ficha_valida_en_palabra(const Casillero& ficha, const list<Casillero>& p
             int paso = distancia_horizontal / abs(distancia_horizontal);
             for (unsigned int columna = mas_distante.columna; columna != ficha.columna; columna += paso) {
                 // el casillero DEBE estar ocupado en el tablero de palabras
+                rwlockTablero[ficha.fila][columna].wlock();
                 if (!(puso_letra_en(ficha.fila, columna, palabra_actual)) && tablero_palabras[ficha.fila][columna] == VACIO) {
+                    rwlockTablero[ficha.fila][columna].wunlock();
                     return false;
                 }
+                rwlockTablero[ficha.fila][columna].wunlock();
             }
 
         } else if (distancia_horizontal == 0) {
@@ -356,9 +373,12 @@ bool es_ficha_valida_en_palabra(const Casillero& ficha, const list<Casillero>& p
             int paso = distancia_vertical / abs(distancia_vertical);
             for (unsigned int fila = mas_distante.fila; fila != ficha.fila; fila += paso) {
                 // el casillero DEBE estar ocupado en el tablero de palabras
+                rwlockTablero[fila][ficha.columna].wlock();
                 if (!(puso_letra_en(fila, ficha.columna, palabra_actual)) && tablero_palabras[fila][ficha.columna] == VACIO) {
+                    rwlockTablero[fila][ficha.columna].wunlock();
                     return false;
                 }
+                rwlockTablero[fila][ficha.columna].wunlock();
             }
         }
         else {
