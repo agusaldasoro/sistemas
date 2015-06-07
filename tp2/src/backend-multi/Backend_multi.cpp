@@ -15,6 +15,8 @@ unsigned int alto = -1;
 
 pthread_mutex_t mutex_thread;
 vector<vector<RWLock> > rwlockTablero;
+pthread_mutex_t mutex_jugadores;
+unsigned int jugadores_activos;
 
 bool cargar_int(const char* numero, unsigned int& n) {
     char *eptr;
@@ -46,6 +48,9 @@ int main(int argc, const char* argv[]) {
             return 5;
         }
     }
+
+    pthread_mutex_init(&mutex_jugadores, NULL);
+    jugadores_activos = 0;
 
     // inicializar ambos tableros, se accede como tablero[fila][columna]
     tablero_letras = vector<vector<char> >(alto);
@@ -113,6 +118,10 @@ void atendedor_de_jugador(int* socket_fd) {
     pthread_mutex_lock(&mutex_thread);
     int sockAUX = *socket_fd;
     pthread_mutex_unlock(&mutex_thread);
+
+    pthread_mutex_lock(&mutex_jugadores);
+    jugadores_activos++;
+    pthread_mutex_unlock(&mutex_jugadores);
 
     // variables locales del jugador
     char nombre_jugador[21];
@@ -306,11 +315,17 @@ void cerrar_servidor(int signal) {
 void terminar_servidor_de_jugador(int socket_fd, list<Casillero>& palabra_actual) {
     cout << "Se interrumpió la comunicación con un cliente" << endl;
 
-    close(socket_fd);
-
     quitar_letras(palabra_actual);
 
-    exit(-1);
+    pthread_mutex_lock(&mutex_jugadores);
+    jugadores_activos--;
+    bool hayMasJugando = jugadores_activos == 0;
+    pthread_mutex_unlock(&mutex_jugadores);
+
+    if(hayMasJugando)
+        exit(-1);
+
+    pthread_exit(&socket_fd);
 }
 
 
