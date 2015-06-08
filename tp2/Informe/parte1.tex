@@ -1,4 +1,27 @@
 \section{Read-Write Lock}
-En primer lugar, deberan implementar un Read-Write Lock libre de inanicion utilizando unicamente Variables de Condicion POSIX y respetando la interfaz provista en los archivos backend-multi/RWLock.h y backend-multi/RWLock.cpp.
- 
- 
+
+Implementamos los algoritmos de \emph{\textbf{Read-Write Lock}} libre de inanici\'on utilizando unicamente \textit{mutex} y respetando la interfaz provista en los archivos \texttt{backend-multi/RWLock.h} y \texttt{backend-multi/RWLock.cpp}.\\
+
+Nuestro objetivo es restringir el acceso a la variable \texttt{tablero}, de modo que puedan leer los datos en \'el simultaneamente diversa cantidad de \emph{lectores} pero s\'olo puedan \emph{escribir} de a uno por vez y cuando nadie este leyendo.\\
+
+La exclusi\'on mutua que se lleva a cabo se comporta de modo que la ejecuci\'on de un thread en la secci\'on cr\'itica no excluye a otros threads que ingresen a la misma. Sin embargo, si determinado tipo de thread es quien se encuentra en la secci\'on cr\'itica prohibe a las otras categor\'ias de threads ingresar a ella.\\
+\\
+
+Armamos la clase \emph{\textbf{Lightswitch}}, la cual contiene un contador (\texttt{count}) el que llevar\'a la cantidad de gente que se encuentra leyendo el tablero y un mutex (\texttt{mut}) para acceder al mismo.\\
+
+Las funciones pertinentes a la clase ser\'an: \textit{lock} y \textit{unlock}. Ser\'an invocadas solamente por los \textit{readers} para leer y dejar de leer el tablero respectivamente. Su comportamiento es simple: se toma el mutex para actualizar la variable \texttt{count} ($+1$ si es lock, $-1$ unlock) y luego s\'olo modificar\'an al mutex \texttt{m} pasado por par\'ametro si es el primero en leer o si es el \'ultimo en dejar de leer.
+
+Si ingresa un nuevo lector y no hab\'ia nadie leyendo el tablero ($count == 1$), har\'a un wait del mutex \texttt{m}. An\'alogamente si es el lector que al retirarse, dejar\'a al tablero vac\'io ($count == 0$) har\'a un signal liberando al mutex \texttt{m}.\\
+\\
+
+Las variables con las que trabajar\'an las funciones Read-Write Lock ser\'an tres: un Lightswitch llamado \textbf{readSwitch} y dos mutex \textbf{turnstile} y \textbf{roomEmpty}.\\
+
+El \texttt{readSwitch} ser\'a el Lightswitch que se comportar\'a acorde a lo explicado anteriormente unicamente para el uso del \textit{reader}. De modo que permitir\'a a m\'ultiples lectores acceder al tablero de manera simult\'anea.\\
+
+Por otro lado, vamos a tener al mutex \texttt{roomEmpty}, el cual se va a habilitar unicamente cuando nadie este leyendo el tablero (sea leyendo o escribiendo). Es preciso aclarar que \texttt{roomEmpty} es el mutex que ser\'a pasado por par\'ametro a la hora de invocar a las funciones del \texttt{readSwitch}.\\
+
+Por \'ultimo, el mutex \texttt{turnstile} ser\'a el encargado de impedir la inanici\'on. Los \textit{escritores} son quienes podr\'ian correr riesgo de \emph{inanici\'on} si sucede que llega una escritura, pero tambi\'en lecturas y por no ejecutarse en orden siempre se bloquea el acceso al tablero por los \textit{lectores}.
+
+Tanto los \textit{lectores}, como los \textit{escritores} deber\'an pasar por el mutex \texttt{turnstile}, haci\'endole wait. Pero los \textit{lectores} le dar\'an signal en la instrucci\'on siguiente, mientras que los \textit{escritores} lo har\'an despu\'es de esperar al mutex roomEmpty.
+
+De esta manera, si un escritor no puede avanzar en el mutex \texttt{turnstile} obliga a los lectores que lleguen a ``ponerse en espera'' del \texttt{turnstile}. Y cuando el \'ultimo lector de los que estaban en el tablero, lo abandone, permitir\'a al escritor tener acceso al tablero antes de cualquiera de los lectores que se ejecutaron despu\'es de \'el y estaban esperando.
