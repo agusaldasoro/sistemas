@@ -21,9 +21,9 @@ class SchedRR2 : public SchedBase {
 		vector<int> quantums;
 		vector<int> quantums_timer;
 		vector<int> actuales;
-		int siguiente;
 		vector<pair<int, queue<int, deque<int> >* > > colas;
-		int next(int cpu, const enum Motivo m);
+		vector<pair<int, int> > bloqueadosEnCpu;
+		int next(int cpu);
 };
 
 #endif

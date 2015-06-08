@@ -1,7 +1,7 @@
 #include "tasks.h"
 #include <iostream>
 #include <stdlib.h>
-#include <algorithm>
+#include <set>
 
 using namespace std;
 
@@ -55,35 +55,19 @@ void TaskBatch(int pid, vector<int> params){
 //Recibo tiempo total de ejecucion (incluyendo llamada bloqueante) y cantidad de bloqueos a realizar
 	int total_cpu = params[0];
 	int cant_bloqueos = params[1];
-	vector<int> azar(cant_bloqueos);
-//Elijo cant_bloqueos numeros al azar entre 0 y total_cpu-1
-	for (int i = 0; i < cant_bloqueos; ++i){
-		srand((unsigned) time(NULL));
-		int random = rand() % total_cpu;
-		azar[i] = random;
-//Si ya lo habia elegido, elijo otro;
-		for (int j = 0; j < i; ++j){
-			if (azar[j] == random){
-				j = i;
-				i--;
-			}
+	set<int> azar;
+	srand((unsigned) time(NULL));
+	while(azar.size() < cant_bloqueos){
+		azar.insert(rand() % total_cpu);
+	}
+//si estoy en el momento de bloquear, bloqueo, sino, hago uso intensivo del cpu
+	for (int i = 0; i < total_cpu; ++i) {
+		if (azar.count(i) != 0) {
+			uso_IO(pid,1);
+		} else {
+			uso_CPU(pid,1);
 		}
 	}
-//Los ordeno para trabajarlos secuencialmente
-	sort(azar.begin(), azar.end());
-	int i=0, j=0;
-//Mientras tenga bloqueos restantes, si estoy en el momento de bloquear, bloqueo, sino, hago uso intensivo del cpu
-	while(i < cant_bloqueos){
-		if(azar[i] == j){
-			uso_IO(pid, 1);
-			i++;
-		}
-		else
-			uso_CPU(pid, 1);
-		j++;
-	}
-//El tiempo restante lo usa el cpu
-	uso_CPU(pid, total_cpu-j);
 }
 
 void tasks_init(void) {
