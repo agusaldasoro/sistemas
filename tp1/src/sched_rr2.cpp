@@ -29,6 +29,7 @@ SchedRR2::~SchedRR2() {
 
 
 void SchedRR2::load(int pid) {
+	//me fijo que cpu tiene menos tareas asignadas
 	int a_usar = 0, min_proc = colas[0].first;
 	for (int i = 1; i < cores; ++i){
 		if(min_proc > colas[i].first){
@@ -36,6 +37,7 @@ void SchedRR2::load(int pid) {
 			a_usar = i;
 		}
 	}
+	//encolo en el menos solicitado y aumento su cantidad de tareas
 	colas[a_usar].first++;
 	colas[a_usar].second->push(pid);
 
@@ -66,27 +68,34 @@ void SchedRR2::unblock(int pid) {
 	int cpuDeTarea = bloqueadosEnCpu[i].second;
 	//la encolo en la cola de su cpu
 	colas[cpuDeTarea].second->push(pid);
+	//lo borro de la lista de bloqueados
 	bloqueadosEnCpu.erase(bloqueadosEnCpu.begin()+i);
 }
 
 int SchedRR2::tick(int cpu, const enum Motivo m) {
+	//si estaba la idle, me fijo si hay que alguna que pueda seguir
 	if (actuales[cpu] == IDLE_TASK){
 		return next(cpu);
 	}
+	//si se bloqueo, la anoto como tal en el par pid, cpu y pido la siguiente
 	if(m == BLOCK){
 		pair<int, int> par = make_pair(current_pid(cpu), cpu);
 		bloqueadosEnCpu.push_back(par);
 		return next(cpu);
 	}
+	//si termino, la descuento del procesador donde corria y pido la siguiente
 	if(m == EXIT){
 		colas[cpu].first--;
 		return next(cpu);
 	}
+	//si no resto en el timer
 	quantums_timer[cpu]--;
+	//si se agotaron los ticks encolo y pido siguiente
 	if(quantums_timer[cpu] <= 0){
 		colas[cpu].second->push(actuales[cpu]);
 		return next(cpu);
 	}
+	//si no devuelvo la actual
 	return actuales[cpu];
 
 //VIEJA VERSION

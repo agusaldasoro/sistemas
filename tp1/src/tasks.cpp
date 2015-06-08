@@ -52,6 +52,7 @@ void TaskConsola(int pid, vector<int> params){
 }
 
 void TaskBatch(int pid, vector<int> params){
+//Modificamos el "set a mano, ineficiente" por el set de la libreria de C pero aplica la misma logica
 //Recibo tiempo total de ejecucion (incluyendo llamada bloqueante) y cantidad de bloqueos a realizar
 	int total_cpu = params[0];
 	int cant_bloqueos = params[1];
