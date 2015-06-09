@@ -1,9 +1,63 @@
 \section{Servidor Backend}
+Para crear el nuevo prototipo que permita a múltiples clientes jugar simultáneamente se uso como  código base el provisto en $Backend\_mono.cpp$. Pero, dado que ahora hay mas de un jugador se llevaron a cabo las modificaciones necesarias para evitar inanición, condición de carrera, o cualquier otro problema que intervenga en una utilización dinámica y correcta del juego.
 
- El informe debera ser de caracter breve e incluir el pseudocodigo de los algoritmos que se ejecutan en el servidor de backend frente a cada peticion de un cliente, poniendo enfasis en las primitivas de sincronizacion al estilo del primer parcial de la materia. Si fuera necesario, puede ser buena idea incluir una explicacion del funcionamiento del servidor en lenguaje natural. Cualquier decision de diseno que hayan tomado debera ser incluida aquı. La implementacion que realicen del servidor de backend debe estar libre de condiciones de carrera y presentar la funcionalidad descripta arriba a cada uno de los clientes. A su vez, debe:
- 
-Permitir que multiples clientes se conecten al backend de forma simultanea.
+Comenzamos definiendo las siguientes variables globales (su uso se describirá mas adelante):
+\begin{verbatim}
+mutex mutex_thread;
+Matriz <RWLock> rwlockTablero;
+mutex mutex_jugadores;
+unsigned int jugadores_activos;
+\end{verbatim}
 
-Permitir que todos los jugadores coloquen letras en casilleros distintos de forma simultanea.
+Se inicializa las dimensiones del tablero del palabras, como así la del de letras (propio de cada  jugador) y el $rwlockTablero$ con las mismas dimensiones. $rwlockTablero$ sera una matriz de mutex, con el objetivo de que cuando distintos jugadores quieran  colocar una letra en una misma posición solo puedan hacerlo si se tiene habilitado el mismo, de esta forma solo uno sera quien pueda colocar la letra pero, no así si varios quieren escribir en distintas posiciones, ya que podrán hacerlo simultáneamente si en esas posiciones el mutex esta disponible; e inicializaremos el mutex $mutex\_thread$.
 
-Permitir que varios clientes consulten el estado del tablero de forma simultanea.
+Se procede a establecer la conexión con el servidor mediante el uso de socket. Para permitir que varios jugadores se conecten, por cada jugador (o cliente) crearemos un thread y a cada uno de estos se le asociara la función $atendedor\_de\_jugador$ que recibe como parámetro el file descriptor del socket asociado a cada jugador. 
+\begin{verbatim}
+    while (true) {
+        if ((socketfd_cliente = accept(socket_servidor, &socket_remoto, &socket_size)) == -1)
+            "Error al aceptar conexión";
+        else {
+            pthread_t thread;
+            pthread_create(&thread, NULL, atendedor_de_jugador, socketfd_cliente);
+        }
+    }
+\end{verbatim}
+$atendedor\_de\_jugador$ es similar al de $Backend\_mono.cpp$ pero dado que ahora hay mas de un jugador se utilizaran los mutex necesarios para evitar cualquier conflicto mencionado anteriormente.
+Al permitir varias conexiones simultáneamente y dado que al aceptar una conexión pasamos por referencia el socket, este se vera modificado cuando distintos clientes se conecten, para esto dentro de la función atendedor jugador nos guardamos el file descriptor del socket en sockAUX y además incrementamos la variable $jugadores\_activos$. Al momento de actualizar estas ultimas variables si el scheduler asigna tiempo de ejecución a otros threads a ambas variables es posible que se le asigne un valor erróneo, por lo que serán protegidas por el mutex $mutex\_thread$ y $mutex\_jugadores$ respectivamente. 
+De ahora en mas las funciones que utilicen al socket harán uso de $sockAUX$ que sera distinto para cada thread.
+
+En los casos de que se corte la comunicación, o se produjera un error al enviar las dimensiones, es necesario terminar el servidor del juego. A diferencia de la implementación para $Backend\_mono$ ahora es necesario decrementar la variable cantidad de jugares, lo mismo se realizara luego de hacer un wait a $mutex\_jugadores$ y al reducirlo se hará un signal, en caso de no haber mas jugadores se procede a terminar el programa ($exit(-1)$) sino solo se procede a terminar ese thread con $pthread\_exit$. 
+
+Finalmente se procede a esperar la colocación de una letra o confirmar una palabra.
+Cuando un jugador quiera escribir una letra en el tablero, primero se revisara si puede hacerlo mediante $es\_ficha\_valida\_en\_palabra$.  $es\_ficha\_valida\_en\_palabra$ chequeara que la posición en la que se quiere a la letra coincida con las dimensiones del  tablero; que sea una posición libre; y en el caso de haya una palabra completa las letras a ubicar sean adyacentes a esta (horizontal o verticalmente) ACA TENGO UNA DUDA PORQUE CHEQUEA LA POSICION A ESCRIBIR EN EL TRABLERO PERO NO DEBERIA  SER UN RLOCK EN VEZ DE WLOCK?. En caso de que la anterior función de $true$  se hará uso de la matriz de mutex. De esta manera si simultáneamente varios jugadores quieren escribir en una misma posición solo uno sera asignado (podrá hacer wait del mutex), mientras que todos los demás deberán esperar el signal correspondiente. 
+\begin{verbatim}
+            if (es_ficha_valida_en_palabra(ficha, palabra_actual)) {
+                palabra_actual.push_back(ficha);
+                rwlockTablero[ficha.fila][ficha.columna].wlock();
+                tablero_letras[ficha.fila][ficha.columna] = ficha.letra;
+                rwlockTablero[ficha.fila][ficha.columna].wunlock(); 
+\end{verbatim}
+En caso dar $false$ es necesario quitar la letra, como ningún otro jugador debe escribir antes de que se retire, sino se eliminaría una letra errónea, lo haremos con el uso de los wlocks y wunlocks.
+\begin{verbatim}
+void quitar_letras(list palabra_actual) {
+    for ( iterator casillero = palabra_actual.begin(); casillero != palabra_actual.end();
+     casillero++) {
+        rwlockTablero[casillero->fila][casillero->columna].wlock();
+        tablero_letras[casillero->fila][casillero->columna] = VACIO;
+        rwlockTablero[casillero->fila][casillero->columna].wunlock();
+    }
+    palabra_actual.clear();
+}
+\end{verbatim}
+Algo similar ocurre cuando se completa una palabra. En primer lugar es necesario actualizar el tablero por cada jugador, para esto es necesario leer el mismo.
+$enviar\_tablero$ se encargara de actualizar el tablero, como ya se menciono puede haber varios lectores pero mientras los haya, ningún escritor puede escribir, es por esto que usaremos las funciones rlock, runlock antes y después de leer cada letra del tablero respectivamente garantizando una correcta lectura y evitando que se escriba en el mismo hasta que todos los readers hayan leído.
+En segundo lugar dado que hay varios jugadores es necesario que se termine de escribir esa palabra completamente y que la asignación del scheduler a  otro thread no altere las posiciones o la palabra que quedo sin completar para esto cuando se escribe la palabra completa se hará por medio del mutex wlock:
+\begin{verbatim}
+     for (iterator casillero = palabra_actual.begin(); casillero != palabra_actual.end();
+      casillero++) {
+                rwlockTablero[casillero->fila][casillero->columna].wlock();
+                tablero_palabras[casillero->fila][casillero->columna] = casillero->letra;
+                rwlockTablero[casillero->fila][casillero->columna].wunlock();
+            }
+\end{verbatim}
+Si para las funciones anteriores no se produjo ningún error entonces el o los casilleros habrán quedado actualizado correctamente sino se terminara el thread o todo el proceso, según corresponda con $terminar\_servidor\_de\_jugador$.
