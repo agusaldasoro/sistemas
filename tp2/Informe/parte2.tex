@@ -1,7 +1,7 @@
 \section{Servidor Backend}
 Para crear el nuevo prototipo que permita a múltiples clientes jugar simultáneamente se uso como  código base el provisto en $Backend\_mono.cpp$. Pero, dado que ahora hay mas de un jugador se llevaron a cabo las modificaciones necesarias para evitar inanición, condición de carrera, o cualquier otro problema que intervenga en una utilización dinámica y correcta del juego.
 
-Comenzamos definiendo las siguientes variables globales (su uso se describirá mas adelante):
+Comenzamos agregando las siguientes variables globales (su uso se describirá mas adelante):
 \begin{verbatim}
 mutex mutex_thread;
 Matriz <RWLock> rwlockTablero;
@@ -9,7 +9,7 @@ mutex mutex_jugadores;
 unsigned int jugadores_activos;
 \end{verbatim}
 
-Se inicializa las dimensiones del tablero del palabras, como así la del de letras (propio de cada  jugador) y el $rwlockTablero$ con las mismas dimensiones. $rwlockTablero$ sera una matriz de mutex, con el objetivo de que cuando distintos jugadores quieran  colocar una letra en una misma posición solo puedan hacerlo si se tiene habilitado el mismo, de esta forma solo uno sera quien pueda colocar la letra pero, no así si varios quieren escribir en distintas posiciones, ya que podrán hacerlo simultáneamente si en esas posiciones el mutex esta disponible; e inicializaremos el mutex $mutex\_thread$.
+Se inicializa las dimensiones del tablero del palabras (que contendra a las palabras formadas, $tablero_palabras$), como así la del de letras (que posee letras que no conforman ninguna palabra, $tablero_letras$) y el $rwlockTablero$ con las mismas dimensiones. $rwlockTablero$ sera una matriz de mutex, con el objetivo de que cuando distintos jugadores quieran  colocar una letra en una misma posición solo puedan hacerlo si se tiene habilitado el mismo, de esta forma solo uno sera quien pueda colocar la letra pero, no así si varios quieren escribir en distintas posiciones, ya que podrán hacerlo simultáneamente si en esas posiciones el mutex esta disponible; e inicializaremos el mutex $mutex\_thread$.
 
 Se procede a establecer la conexión con el servidor mediante el uso de socket. Para permitir que varios jugadores se conecten, por cada jugador (o cliente) crearemos un thread y a cada uno de estos se le asociara la función $atendedor\_de\_jugador$ que recibe como parámetro el file descriptor del socket asociado a cada jugador. 
 \begin{verbatim}
@@ -29,7 +29,7 @@ De ahora en mas las funciones que utilicen al socket harán uso de $sockAUX$ que
 En los casos de que se corte la comunicación, o se produjera un error al enviar las dimensiones, es necesario terminar el servidor del juego. A diferencia de la implementación para $Backend\_mono$ ahora es necesario decrementar la variable cantidad de jugares, lo mismo se realizara luego de hacer un wait a $mutex\_jugadores$ y al reducirlo se hará un signal, en caso de no haber mas jugadores se procede a terminar el programa ($exit(-1)$) sino solo se procede a terminar ese thread con $pthread\_exit$. 
 
 Finalmente se procede a esperar la colocación de una letra o confirmar una palabra.
-Cuando un jugador quiera escribir una letra en el tablero, primero se revisara si puede hacerlo mediante $es\_ficha\_valida\_en\_palabra$.  $es\_ficha\_valida\_en\_palabra$ chequeara que la posición en la que se quiere a la letra coincida con las dimensiones del  tablero; que sea una posición libre; y en el caso de haya una palabra completa las letras a ubicar sean adyacentes a esta (horizontal o verticalmente) ACA TENGO UNA DUDA PORQUE CHEQUEA LA POSICION A ESCRIBIR EN EL TRABLERO PERO NO DEBERIA  SER UN RLOCK EN VEZ DE WLOCK?. En caso de que la anterior función de $true$  se hará uso de la matriz de mutex. De esta manera si simultáneamente varios jugadores quieren escribir en una misma posición solo uno sera asignado (podrá hacer wait del mutex), mientras que todos los demás deberán esperar el signal correspondiente. 
+Cuando un jugador quiera escribir una letra en el tablero, primero se revisara si puede hacerlo mediante $es\_ficha\_valida\_en\_palabra$.  $es\_ficha\_valida\_en\_palabra$ chequeara que la posición en la que se quiere a la letra coincida con las dimensiones del  tablero; que sea una posición libre; y en el caso de haya una palabra completa las letras a ubicar sean adyacentes a esta (horizontal o verticalmente). Dado que lo que se va a querer realizar es una escritura en esa posición (de ser posible), con el mutex correspondiente a dicha posición dentro de $rwlockTablero$  se chequeara, de forma correcta, que la palabra exista y este ubicada de forma correcta. En caso de que $es\_ficha\_valida\_en\_palabra$ de $true$  mediante la matriz de mutex, procederemos a escribir de esta manera si simultáneamente varios jugadores quieren hacerlo en una misma posición solo uno sera asignado (podrá hacer wait del mutex), mientras que todos los demás deberán esperar el signal correspondiente. 
 \begin{verbatim}
             if (es_ficha_valida_en_palabra(ficha, palabra_actual)) {
                 palabra_actual.push_back(ficha);
@@ -49,7 +49,7 @@ void quitar_letras(list palabra_actual) {
     palabra_actual.clear();
 }
 \end{verbatim}
-Algo similar ocurre cuando se completa una palabra. En primer lugar es necesario actualizar el tablero por cada jugador, para esto es necesario leer el mismo.
+Algo similar ocurre cuando se completa una palabra solo que ahora se ahora se hara uso del $tablero_palabras$. En primer lugar es necesario actualizar el tablero por cada jugador, para esto es necesario leer el mismo.
 $enviar\_tablero$ se encargara de actualizar el tablero, como ya se menciono puede haber varios lectores pero mientras los haya, ningún escritor puede escribir, es por esto que usaremos las funciones rlock, runlock antes y después de leer cada letra del tablero respectivamente garantizando una correcta lectura y evitando que se escriba en el mismo hasta que todos los readers hayan leído.
 En segundo lugar dado que hay varios jugadores es necesario que se termine de escribir esa palabra completamente y que la asignación del scheduler a  otro thread no altere las posiciones o la palabra que quedo sin completar para esto cuando se escribe la palabra completa se hará por medio del mutex wlock:
 \begin{verbatim}
