@@ -99,6 +99,7 @@ int main(int argc, const char* argv[]) {
 
     socket_size = sizeof(remoto);
     while (true) {
+        pthread_mutex_lock(&mutex_thread);
         if ((socketfd_cliente = accept(socket_servidor, (struct sockaddr*) &remoto, (socklen_t*) &socket_size)) == -1)
             cerr << "Error al aceptar conexion" << endl;
         else {
@@ -115,7 +116,6 @@ int main(int argc, const char* argv[]) {
 
 void atendedor_de_jugador(int* socket_fd) {
     //guardamos el socket de cada cliente para que no se pierda, porque se paso por rereferencia y se modifica en los accept
-    pthread_mutex_lock(&mutex_thread);
     int sockAUX = *socket_fd;
     pthread_mutex_unlock(&mutex_thread);
 
@@ -319,11 +319,20 @@ void terminar_servidor_de_jugador(int socket_fd, list<Casillero>& palabra_actual
 
     pthread_mutex_lock(&mutex_jugadores);
     jugadores_activos--;
-    bool hayMasJugando = jugadores_activos == 0;
+    bool noHayMasJugando = jugadores_activos == 0;
     pthread_mutex_unlock(&mutex_jugadores);
 
-    if(hayMasJugando)
-        exit(-1);
+    if(noHayMasJugando){
+        for (unsigned int i = 0; i < tablero_palabras.size(); ++i){
+            for (unsigned int j = 0; j < tablero_palabras[i].size(); ++j){
+                rwlockTablero[i][j].wlock();
+                tablero_palabras[i][j] = VACIO;
+                tablero_letras[i][j] = VACIO;
+                rwlockTablero[i][j].wunlock();
+            }
+        }
+//        exit(-1);
+    }
 
     pthread_exit(&socket_fd);
 }
