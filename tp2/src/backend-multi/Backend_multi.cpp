@@ -100,8 +100,10 @@ int main(int argc, const char* argv[]) {
     socket_size = sizeof(remoto);
     while (true) {
         pthread_mutex_lock(&mutex_thread);
-        if ((socketfd_cliente = accept(socket_servidor, (struct sockaddr*) &remoto, (socklen_t*) &socket_size)) == -1)
+        if ((socketfd_cliente = accept(socket_servidor, (struct sockaddr*) &remoto, (socklen_t*) &socket_size)) == -1){
+            pthread_mutex_unlock(&mutex_thread);
             cerr << "Error al aceptar conexion" << endl;
+        }
         else {
             //creamos un thread para cada cliente
             pthread_t thread;
