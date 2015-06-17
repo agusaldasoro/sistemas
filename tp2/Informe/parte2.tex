@@ -1,17 +1,20 @@
 \section{Servidor Backend}
-Para crear el nuevo prototipo que permita a múltiples clientes jugar simultáneamente se uso como  código base el provisto en $Backend\_mono.cpp$. Pero, dado que ahora hay mas de un jugador se llevaron a cabo las modificaciones necesarias para evitar inanición, condición de carrera, o cualquier otro problema que intervenga en una utilización dinámica y correcta del juego.
+Para crear el nuevo prototipo que permita a múltiples clientes jugar simultáneamente, se us\'o como  \textit{código base} el provisto en \texttt{Backend\_mono.cpp}. Teniendo en cuenta que, dado que ahora hay m\'as de un jugador, se llevaron a cabo las modificaciones necesarias para evitar: inanición, condición de carrera, o cualquier otro problema que intervenga en una utilización dinámica y correcta del juego.\\
 
 Comenzamos agregando las siguientes variables globales (su uso se describirá mas adelante):
 \begin{verbatim}
-mutex mutex_thread;
-Matriz <RWLock> rwlockTablero;
-mutex mutex_jugadores;
-unsigned int jugadores_activos;
+mutex          mutex_thread;
+Matriz         <RWLock> rwlockTablero;
+mutex          mutex_jugadores;
+unsigned int   jugadores_activos;
 \end{verbatim}
 
-Se inicializa las dimensiones del tablero del palabras (que contendra a las palabras formadas, $tablero_palabras$), como así la del de letras (que posee letras que no conforman ninguna palabra, $tablero_letras$) y el $rwlockTablero$ con las mismas dimensiones. $rwlockTablero$ sera una matriz de mutex, con el objetivo de que cuando distintos jugadores quieran  colocar una letra en una misma posición solo puedan hacerlo si se tiene habilitado el mismo, de esta forma solo uno sera quien pueda colocar la letra pero, no así si varios quieren escribir en distintas posiciones, ya que podrán hacerlo simultáneamente si en esas posiciones el mutex esta disponible; e inicializaremos el mutex $mutex\_thread$.
+Se inicializan las dimensiones del tablero de palabras, el cual contendr\'a a las palabras formadas (\texttt{tablero\_palabras}); como así tambi\'en la de letras, el cual posee letras que no conforman ninguna palabra (\texttt{tablero\_letras}) y el \texttt{rwlockTablero} con las mismas dimensiones.
 
-Se procede a establecer la conexión con el servidor mediante el uso de socket. Para permitir que varios jugadores se conecten, por cada jugador (o cliente) crearemos un thread y a cada uno de estos se le asociara la función $atendedor\_de\_jugador$ que recibe como parámetro el file descriptor del socket asociado a cada jugador. 
+ \texttt{rwlockTablero} ser\'a una matriz de \emph{mutex}es, con el objetivo de que cuando distintos jugadores quieran  colocar una letra en una misma posición solo puedan hacerlo si se tiene habilitado el mismo. De esta forma, s\'olo uno ser\'a quien pueda colocar alguna letra en determinado casillero. Sin embargo, permitir\'a que si varios quieren escribir en distintas posiciones, podrán hacerlo simultáneamente (el mutex estar\'a disponible). Inicializaremos el mutex \texttt{mutex\_thread}.\\
+
+Se procede a establecer la conexión con el servidor mediante el uso de socket. Para permitir que varios jugadores se conecten, por cada jugador (o cliente) crearemos un thread y a cada uno de estos se le asociar\'a la función \texttt{atendedor\_de\_jugador} que recibe como parámetro el \textit{file descriptor} del socket asociado a cada jugador. 
+
 \begin{verbatim}
     while (true) {
         if ((socketfd_cliente = accept(socket_servidor, &socket_remoto, &socket_size)) == -1)
@@ -22,14 +25,24 @@ Se procede a establecer la conexión con el servidor mediante el uso de socket. 
         }
     }
 \end{verbatim}
-$atendedor\_de\_jugador$ es similar al de $Backend\_mono.cpp$ pero dado que ahora hay mas de un jugador se utilizaran los mutex necesarios para evitar cualquier conflicto mencionado anteriormente.
-Al permitir varias conexiones simultáneamente y dado que al aceptar una conexión pasamos por referencia el socket, este se vera modificado cuando distintos clientes se conecten, para esto dentro de la función atendedor jugador nos guardamos el file descriptor del socket en sockAUX y además incrementamos la variable $jugadores\_activos$. Al momento de actualizar estas ultimas variables si el scheduler asigna tiempo de ejecución a otros threads a ambas variables es posible que se le asigne un valor erróneo, por lo que serán protegidas por el mutex $mutex\_thread$ y $mutex\_jugadores$ respectivamente. 
-De ahora en mas las funciones que utilicen al socket harán uso de $sockAUX$ que sera distinto para cada thread.
+La funci\'on \texttt{atendedor\_de\_jugador} tiene un comportamiento similar al de \texttt{Backend\_mono.cpp} pero dado que ahora hay m\'as de un jugador, se utilizar\'an los \emph{mutex}es necesarios para evitar cualquier conflicto mencionado anteriormente.\\
 
-En los casos de que se corte la comunicación, o se produjera un error al enviar las dimensiones, es necesario terminar el servidor del juego. A diferencia de la implementación para $Backend\_mono$ ahora es necesario decrementar la variable cantidad de jugares, lo mismo se realizara luego de hacer un wait a $mutex\_jugadores$ y al reducirlo se hará un signal, en caso de no haber mas jugadores se procede a terminar el programa ($exit(-1)$) sino solo se procede a terminar ese thread con $pthread\_exit$. 
+Al permitir varias conexiones simultáneamente y dado que al aceptar una conexión pasamos por referencia el socket, este se ver\'a modificado cuando distintos clientes se conecten. Por este motivo, dentro de la función \texttt{atendedor\_de\_jugador} nos guardamos el \textit{file descriptor} del socket en \texttt{sockAUX} y además incrementamos la variable \texttt{jugadores\_activos}. 
+
+Al momento de actualizar estas \'ultimas variables, si el scheduler asigna tiempo de ejecución a otros threads es posible que se le asignen a ambas variables un valor erróneo. Por lo que serán protegidas por el mutex \texttt{mutex\_thread} y \texttt{mutex\_jugadores} respectivamente. 
+
+De ahora en m\'as, las funciones que utilicen al socket harán uso de \texttt{sockAUX} quien ser\'a distinto para cada thread.\\
+
+En los casos de que se corte la comunicación o se produjera un error al enviar las dimensiones, es necesario terminar el servidor del juego. A diferencia de la implementación para \texttt{Backend\_mono} ahora es necesario decrementar la variable cantidad de jugadores. Lo mismo se realizar\'a luego de hacer un wait a \texttt{mutex\_jugadores} y al reducirlo se hará un signal. En caso de no haber m\'as jugadores, se procede a reiniciar todas las estructuras de modo que nuevos jugadores se puedan conectar y comience una nueva partida.\\
 
 Finalmente se procede a esperar la colocación de una letra o confirmar una palabra.
-Cuando un jugador quiera escribir una letra en el tablero, primero se revisara si puede hacerlo mediante $es\_ficha\_valida\_en\_palabra$.  $es\_ficha\_valida\_en\_palabra$ chequeara que la posición en la que se quiere a la letra coincida con las dimensiones del  tablero; que sea una posición libre; y en el caso de haya una palabra completa las letras a ubicar sean adyacentes a esta (horizontal o verticalmente). Dado que lo que se va a querer realizar es una escritura en esa posición (de ser posible), con el mutex correspondiente a dicha posición dentro de $rwlockTablero$  se chequeara, de forma correcta, que la palabra exista y este ubicada de forma correcta. En caso de que $es\_ficha\_valida\_en\_palabra$ de $true$  mediante la matriz de mutex, procederemos a escribir de esta manera si simultáneamente varios jugadores quieren hacerlo en una misma posición solo uno sera asignado (podrá hacer wait del mutex), mientras que todos los demás deberán esperar el signal correspondiente. 
+
+Cuando un jugador quiera escribir una letra en el tablero, primero se revisar\'a si puede hacerlo mediante \texttt{es\_ficha\_valida\_en\_palabra}.  
+
+\texttt{es\_ficha\_valida\_en\_palabra} chequear\'a que la posición en la que se quiere a la letra coincida con las dimensiones del  tablero, que sea una posición libre y ,en el caso de que haya una palabra completa, las letras a ubicar sean adyacentes a esta (horizontal o verticalmente). Dado que lo que se va a querer realizar es una escritura en esa posición (de ser posible), con el mutex correspondiente a dicha posición dentro de \texttt{rwlockTablero}  se chequear\'a, de forma correcta, que la palabra exista y este ubicada de forma correcta. 
+
+En caso de que \texttt{es\_ficha\_valida\_en\_palabra} de \texttt{true}, mediante la matriz de mutex, procederemos a escribir de esta manera: si simultáneamente varios jugadores quieren hacerlo en una misma posición s\'olo uno ser\'a asignado (podrá hacer wait del mutex), mientras que todos los demás deberán esperar el signal correspondiente. 
+
 \begin{verbatim}
             if (es_ficha_valida_en_palabra(ficha, palabra_actual)) {
                 palabra_actual.push_back(ficha);
@@ -37,7 +50,9 @@ Cuando un jugador quiera escribir una letra en el tablero, primero se revisara s
                 tablero_letras[ficha.fila][ficha.columna] = ficha.letra;
                 rwlockTablero[ficha.fila][ficha.columna].wunlock(); 
 \end{verbatim}
-En caso dar $false$ es necesario quitar la letra, como ningún otro jugador debe escribir antes de que se retire, sino se eliminaría una letra errónea, lo haremos con el uso de los wlocks y wunlocks.
+
+En caso dar \texttt{false} es necesario quitar la letra. Como ningún otro jugador debe escribir antes de que se retire, ya que sino se eliminaría una letra errónea, lo haremos con el uso de los wlocks y wunlocks.
+
 \begin{verbatim}
 void quitar_letras(list palabra_actual) {
     for ( iterator casillero = palabra_actual.begin(); casillero != palabra_actual.end();
@@ -49,9 +64,15 @@ void quitar_letras(list palabra_actual) {
     palabra_actual.clear();
 }
 \end{verbatim}
-Algo similar ocurre cuando se completa una palabra solo que ahora se ahora se hara uso del $tablero_palabras$. En primer lugar es necesario actualizar el tablero por cada jugador, para esto es necesario leer el mismo.
-$enviar\_tablero$ se encargara de actualizar el tablero, como ya se menciono puede haber varios lectores pero mientras los haya, ningún escritor puede escribir, es por esto que usaremos las funciones rlock, runlock antes y después de leer cada letra del tablero respectivamente garantizando una correcta lectura y evitando que se escriba en el mismo hasta que todos los readers hayan leído.
-En segundo lugar dado que hay varios jugadores es necesario que se termine de escribir esa palabra completamente y que la asignación del scheduler a  otro thread no altere las posiciones o la palabra que quedo sin completar para esto cuando se escribe la palabra completa se hará por medio del mutex wlock:
+
+Algo similar ocurre cuando se completa una palabra. S\'olo que ahora se har\'a uso del \texttt{tablero_palabras}.\\
+
+En primer lugar es necesario actualizar el tablero por cada jugador, para esto es necesario leer el mismo.
+
+\texttt{enviar\_tablero} se encargar\'a de actualizar el tablero. Como ya se mencion\'o, puede haber varios lectores pero mientras los haya, ningún escritor puede escribir. Es por esto que usaremos las funciones rlock y runlock antes y después de leer cada letra del tablero respectivamente garantizando una correcta lectura y evitando que se escriba en el mismo hasta que todos los readers hayan leído.\\
+
+En segundo lugar, dado que hay varios jugadores, es necesario que se termine de escribir esa palabra completamente y que la asignación del scheduler a otro thread no altere las posiciones o la palabra que qued\'o sin completar. Para esto, cuando se escribe la palabra completa se hará por medio del mutex wlock:
+
 \begin{verbatim}
      for (iterator casillero = palabra_actual.begin(); casillero != palabra_actual.end();
       casillero++) {
@@ -60,4 +81,5 @@ En segundo lugar dado que hay varios jugadores es necesario que se termine de es
                 rwlockTablero[casillero->fila][casillero->columna].wunlock();
             }
 \end{verbatim}
-Si para las funciones anteriores no se produjo ningún error entonces el o los casilleros habrán quedado actualizado correctamente sino se terminara el thread o todo el proceso, según corresponda con $terminar\_servidor\_de\_jugador$.
+
+Si para las funciones anteriores no se produjo ningún error entonces el o los casilleros habrán quedado actualizado correctamente sino se terminar\'a el thread o todo el proceso, según corresponda con \texttt{terminar\_servidor\_de\_jugador}.
