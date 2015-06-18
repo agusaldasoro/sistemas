@@ -5,7 +5,7 @@ Comenzamos agregando las siguientes variables globales (su uso se describirá ma
 \begin{verbatim}
 mutex          mutex_thread;
 Matriz         <RWLock> rwlockTablero;
-mutex          mutex_jugadores;
+RWLock          mutex_jugadores;
 unsigned int   jugadores_activos;
 \end{verbatim}
 
@@ -81,5 +81,3 @@ En segundo lugar, dado que hay varios jugadores, es necesario que se termine de 
                 rwlockTablero[casillero->fila][casillero->columna].wunlock();
             }
 \end{verbatim}
-
-Si para las funciones anteriores no se produjo ningún error entonces el o los casilleros habrán quedado actualizado correctamente sino se terminar\'a el thread o todo el proceso, según corresponda con \texttt{terminar\_servidor\_de\_jugador}.
