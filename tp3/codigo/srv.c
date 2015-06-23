@@ -10,11 +10,11 @@ void servidor(int mi_cliente){
     int pedido_mas_alto = 0;//el numero de pedido mas alto que alguna vez me pidio, o el mio
     int recibido[1];//arreglo de un espacio para enviar el numero de pedido
     int i;//contador para los for
-    int me_pidieron[cant_ranks];//registro de a quien le debo permisos porque me pidieron pero yo era mas importante
+    int me_pidieron[cant_ranks];//registro de a quien le debo permisos porque me pidieron, pero yo era mas importante
     int a_quien_pedi[cant_ranks];//registro de quienes me dijeron que podia tener el acceso exclusivo
     int siguen_activos[cant_ranks];//registro de que servidores y clientes siguen activos
     int server_vivos = cant_ranks/2;//cuantos servidores siguen activos
-    for (i = 0; i < cant_ranks; i+=2){por cada servidor
+    for (i = 0; i < cant_ranks; i+=2){//por cada servidor
         me_pidieron[i] = FALSE;//nadie me pidio nada
         a_quien_pedi[i] = FALSE;//no le pedi a nadie
         siguen_activos[i] = TRUE;//todos arrancan activos
@@ -61,8 +61,7 @@ void servidor(int mi_cliente){
             if(hay_pedido_local == TRUE && (recibido[0] > numero_pedido || (recibido[0] == numero_pedido && origen > mi_rank))){
                 //si estoy pidiendo yo tambien Y
                 //o bien tengo un numero de pedido menor al del otro servidor, o bien tenemos el mismo pero mi ranking es mas bajo
-                //me guardo que le debo respuesta
-                me_pidieron[origen] = TRUE;
+                me_pidieron[origen] = TRUE;//me guardo que le debo respuesta
             }
             else{
                 //si no tiene mas prioridad o no estoy pidiendo acceso exclusivo, le aviso que puede acceder
@@ -75,7 +74,7 @@ void servidor(int mi_cliente){
             debug("Mi cliente libera su acceso exclusivo");
             assert(hay_pedido_local == TRUE);
             for (i = 0; i < cant_ranks; i+=2){//para cada servidor
-                if(me_pidieron[i] == TRUE){//si me habia pedido acceso, se lo voy, pues mi cliente ya salio de la seccion critica
+                if(me_pidieron[i] == TRUE){//si me habia pedido acceso, se lo doy, pues mi cliente ya salio de la seccion critica
                     MPI_Send(NULL, 0, MPI_INT, i, TAG_PODES_ESCRIBIR, COMM_WORLD);
                 }
                 me_pidieron[i] = FALSE;//marco que no le debo nada
@@ -91,7 +90,7 @@ void servidor(int mi_cliente){
                     MPI_Send(NULL, 0, MPI_INT, mi_cliente, TAG_OTORGADO, COMM_WORLD);
             }
             else{
-                //si no este server se bajo, ya no me interesa que me haya dado permiso
+                //si este server se bajo, ya no me interesa que me haya dado permiso
                 puedo_escribir--;
             }
             a_quien_pedi[origen] = FALSE;//marco que no le pedi nada
