@@ -201,7 +201,7 @@ Si no hay tareas para ejecutar (la cola esta vacía) se asigna como próxima a e
 
 \subsubsection*{Funci\'on Unblock}	
 	
-Dado que cuando una tarea se bloquea es desalojada para que otra disponible comience a ejecutarse, cuando el bloque de la misma termina se la vuelve a encolar como una tarea disponible para ser ejecutada en su debido momento. 
+Dado que cuando una tarea se bloquea es desalojada para que otra disponible comience a ejecutarse, cuando el bloqueo de la misma termina, se la vuelve a encolar como una tarea disponible para ser ejecutada en su debido momento. 
 \bigskip 
  
  
@@ -376,7 +376,7 @@ Por estos motivos, plantearon dos modelos de Scheduler para tareas en un entorno
 \subsubsection{¿Por qu\'e introducen el algoritmo de la secci\'on 7? ¿Qu\'e problema buscan resolver con esto?}
 En la sección 7 se introduce un nuevo algoritmo, el cual es para un scheduler basado en asignaciones de prioridades dinámicamente (llamado \textit{The deadline Driven Scheduling}). Lo introducen como una variante al algoritmo de prioridades fijas (presentado previamente), intentando evitar o disminuir algunos de los problemas presentados para dicho modelo. \\
 
-Una de los problemas a resolver es mejorar las asignaciones de las prioridades, de manera de aprovechar el procesador mejor. A diferencia del modelo de prioridades fijas, donde la utilización del procesador podía variar de un 70\% a un 100\%. De esta forma, este nuevo algoritmo establece que, en el caso de tener las suficientes tarea, el nuevo modelo nunca va a ejecutar la Tarea Idle (si hay alguna otra disponible), sino que siempre se va a estar ejecutando alguna tarea, teniendo un mejor aprovechamiento del CPU. \\
+Una de los problemas a resolver es mejorar las asignaciones de las prioridades, de manera de aprovechar el procesador mejor. A diferencia del modelo de prioridades fijas, donde la utilización del procesador podía variar de un 70\% a un 100\%. De esta forma, este nuevo algoritmo establece que, en el caso de tener las suficientes tareas, el nuevo modelo nunca va a ejecutar la IDLE (si hay alguna otra disponible), sino que siempre se va a estar ejecutando alguna otra, teniendo un mejor aprovechamiento del CPU. \\
 
  Para conseguir esto, se va a aumentar o disminuir la prioridad de una tarea conforme se acerca a su deadline, es decir las prioridades de una misma tarea van a ser modificadas a lo largo de su ejecución. Además, buscaron determinar si un conjunto de tareas evitar\'ia producir overflow, con este algoritmo.\\
  
@@ -499,7 +499,7 @@ Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Al producirse un tick se 
 
 Para programar este tipo de tarea se hace uso de la libreria \emph{set} provista por c++. Nuestra funci\'on, mediante el uso de set, arma un container con un total de cant_bloqueos, cada uno con un valor pseudoaleatorio, dentro de su rango de tiempo de ejecuci\'on \emph{total_cpu}. 
 Luego, para cada ciclo de clock se pregunta si ese momento est\'a indicado para realizar una llamada bloqueante. En caso afirmativo, se ejecuta \textit{uso_IO(pid 1)}; en caso contrario, \textit{uso_CPU(pid 1)}.\\
-Se decidió hacer uso de esta librería ya que insertar un nuevo elemento, así como buscarlo o determinar el tamaño del container, se realiza en tiempo logarítmico respecto a la cantidad de elementos. Esto es útil sobretodo ya que se deben tener tiempos de bloqueos no repetidos, lo cual se puede corroborar en tiempo logarítmico y no hay que reordenar el container y/o usar algún algoritmo de reordenamiento que podría hacer demorar mucho a nuestro algoritmo cuando se utilizan una gran cantidad de bloqueo. 
+Se decidió hacer uso de esta librería ya que insertar un nuevo elemento, así como buscarlo o determinar el tamaño del container, se realiza en tiempo logarítmico respecto a la cantidad de elementos. Esto es úti, sobretodo, ya que se deben tener tiempos de bloqueos no repetidos, lo cual se puede corroborar en tiempo logarítmico y no hay que reordenar el container y/o usar algún algoritmo de reordenamiento que podría hacer demorar mucho a nuestro algoritmo cuando se utilizan una gran cantidad de bloqueo. 
 
 \bigskip 
  \subsection{Ejercicio 7: Ejecuci\'on lote de tareas TaskBatch}
@@ -757,9 +757,7 @@ Graficamos los promedios de tiempos de TournAround.
 En primera instancia, debemos marcar que el hecho de que la cantidad de cores sea igual a la cantidad de tareas no s\'olo otorga un tiempo peque\~no sino que es el \'optimo ya que al poseer m\'as n\'ucleos estos quedar\'ian libres ejecutando continuamente la Tarea Idle. Resulta intuitivo marcar que acorde aumenta la cantidad de cores, descienden los promedios de tiempos ya que cada tarea tiene su n\'ucleo para ejecutar sin importar el quantum debido a que nadie la va a desalojar.\\
 
 
-Bajo esta m\'etrica, la relaci\'on que se preserva entre los casos A, B y C es inversamente proporcional a la m\'etrica anterior. Contando con quantums m\'as peque\~nos, el tiempo que lleva ejecutar una tarea en total es menor ya que se ejecuta con una frecuencia m\'as alta. Hay que tener en cuenta que contar con quantums menor es beneficioso en todos los casos mostrados, ya que se us\'o un tiempo de cambio de contexto de 2 clocks lo que resulta un tiempo peque\~no.\\
-
-\textcolor{red}{Pero con quantums muy chicos perdes muchos clocks en context switch, ojo con esto}
+Bajo esta m\'etrica, la relaci\'on que se preserva entre los casos A, B y C es inversamente proporcional a la m\'etrica anterior. Contando con quantums m\'as peque\~nos, el tiempo que lleva ejecutar una tarea en total es menor ya que se ejecuta con una frecuencia m\'as alta. Hay que tener en cuenta que contar con quantums menor es beneficioso en los casos mostrados, ya que se us\'o un tiempo de cambio de contexto de 2 clocks lo que resulta un tiempo peque\~no. En caso contrario, es posible que el tiempo aumente excesivamente ya que con quantums muy chicos muchos clocks se utilizarian para realizando context switch.
 
 \bigskip
  
@@ -781,8 +779,8 @@ Las estructuras de datos con las que vamos a trabajar, en la clase \emph{SchedRR
 		vector<int> quantums;
 		vector<int> quantums_timer;
 		vector<int> actuales;
-		int siguiente;
 		vector<pair<int, queue<int, deque<int>>*>> colas;
+		vector<pair<int, int> > bloqueadosEnCpu;
 	\end{verbatim}
 	\end{codesnippet}
 	
@@ -791,43 +789,47 @@ Las estructuras de datos con las que vamos a trabajar, en la clase \emph{SchedRR
 	\item[•]\textbf{quantums} vector de \emph{cores} posiciones, donde quantums[i] es el valor del quantum asignado al core i.
 	\item[•]\textbf{quantus_timer}  vector tal que en quantus_timer[i] se encuentra el valor del quantum restante para la tarea corriendo en el i-esimo núcleo.
 	\item[•]\textbf{actuales} vector que indica el PID de la tarea ejecutandose en el núcleo i (actuales[i]). Para los núcleos sin tarea devuelve la constante \textit{IDLE\_TASK}.
-	\item[•]\textbf{siguiente} indica el core al que se le debe asignar la próxima tarea.
+
 	\item[•]\textbf{colas} vector de tuplas. Donde cada posición reresenta a un core y la primer componente de la tupla hacer referencia al número de tareas running + blocked + ready en el mismo. Y la segunda componente es una cola FIFO con los respectivos PID's.  
+	\item[•]\textbf{bloqueadosEnCpu} vector de tuplas, en el mismo se encontraran todas aquellas tareas que hayan sido bloqueadas. La primer componente de cada tupla representa el PID de la tarea bloqueada y en la segunda en que cpu se encontraba.
+
+
 	\end{itemize}	
 	
-%\bigskip	
-\noindent  Modificamos a la funcion \emph{next} para que reciba un parametro m\'as (enum Motivo \{ TICK, BLOCK, EXIT \}).
-	\begin{codesnippet}
-	\begin{verbatim}
-    int next(int cpu, const enum Motivo m);
-	\end{verbatim}
-	\end{codesnippet}
 		
 \subsubsection*{Constructor Scheduler Round-Robin Modificado}		
 
-Al construir un Scheduler Round-Robin sin migración de procesos, empezamos por instanciar las estructuras de datos de modo que: a \emph{cores} se le asigna la cantidad de cores correspondientes. A \emph{quantums\_timer} los respectivos quantums; Todas las tareas actuales se definen como Idle en \emph{actuales}; Se inicia cada tupla de \emph{colas} en cero ya que aún no hay tareas y las colas vacias; Por último \emph{siguiente} es el n\'ucleo al que le corresponde ejecutar la primer tarea, es decir al 0.
-
+Al construir un Scheduler Round-Robin sin migración de procesos, empezamos por instanciar las estructuras de datos de modo que: a \emph{cores} se le asigna la cantidad de cores correspondientes. A \emph{quantums\_timer} los respectivos quantums; Todas las tareas actuales se definen como Idle en \emph{actuales}; Se inicia cada tupla de \emph{colas} en cero ya que aún no hay tareas y las colas vacias.
 \subsubsection*{Funci\'on Load}
 
-Recibe el \emph{pid} de una nueva tarea como par\'ametro. Al igual que para el Scheduler Round Robin, adoptamos distribuir las primeras n tareas entre cada core (dado que al inicio hay n cores disponibles). Además, se incrementa la primer componente de cada tupla en uno (ahora en cada core tengo una tarea).
+Recibe el \emph{pid} de una nueva tarea como par\'ametro. Esta nueva tarea será asignada al CPU con menor cantidad de tareas \emph{running + blocked + ready} es decir, se encolar\'a su pid en alguna cola del vector \emph{colas} cuya primer componente sea la más baja, e incrementado el valor de la cantidad de tareas que posee la misma.
 
- Una vez alcanzadas las n distribuciones de las futuras tareas, ser\'an asignadas a los CPU's con menor cantidad de tareas \emph{running + blocked + ready}.  Es decir, se encolar\'an sus pid's en las colas de cada CPU de \emph{colas} con la primer componente más baja, incrementado ahora dicha componente.
+
+\subsubsection*{Funci\'on unblock}	
+Recibe el \emph{pid} de la tarea que se desbloqueo como par\'ametro.
+Se busca en \emph{bloqueadosEnCpu} la posición que contenga a este \emph{pid}, una vez encontrado se lo encola en las tareas a ejecutar (en el cpu indicado por ese \emph{pid}) y se procede a eliminarlo de \emph{bloqueadosEnCpu}. 
+
 
 \subsubsection*{Funci\'on Tick}	
 
-Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. Dado que se produjo un tick, voy a actualizar el quantum (restarle 1) de la tarea en \emph{cpu}, siempre que no sea la IDLE. Si se acab\'o el quantum de la tarea actual (ya sea porque termin\'o o no) o se bloque\'o, voy a querer actualizar la tarea actual. Invocando a la funci\'on \emph{next()}. La misma devuelve el \emph{pid} de la próxima tarea a ejecutar en \emph{cpu}.
+Recibe \emph{cpu} como par\'ametro y el \emph{Motivo}. 
+
+Dado que se produjo un tick, se corrobora el estado de la tarea actual:
+
+Si la misma es la IDLE se devuelve el pid de la próxima tarea a ejecutar en \emph{cpu} mediante \emph{next(cpu)}. 
+
+En caso de haber una tarea distinta a la IDLE y la misma se bloqueo es necesario retirarla y hacer que otra continué, para esto es encolada en \emph{bloqueadosEnCpu} con su numero de pid y el cpu donde se encontraba y se procede a devolver un nuevo pid.
+ 
+Si el motivo es que termino, además de obtener un nuevo pid, es necesario decrementar el valor de la primer componente de colas en \emph{cpu} ya que esta tiene en cuenta solo a las running + blocked + ready. 
+
+Y si solo se acab\'o su quantum sera necesario cambiar de tarea pero, además encolarla para ser luego ejecutada.
 
 \subsubsection*{Funci\'on Next}	
 	
 
-Si la tarea que se estaba ejecutando previo a la invocaci\'on de \emph{next()} termin\'o de ejecutarse y la cola se encuentra vac\'ia, la tarea que pondr\'a a ejecutar va a ser la Tarea Idle y se actualiza el número que indica cuantas tareas hay en ese cpu.
+Como se va a proceder a cambiar de tarea en el cpu que realizo la llamada a esta función, se procede a asignar para el mismo el máximo quantum disponible. 
+Dado que para este caso no hay migración de procesos, las tareas a ejecutarse son aquellas que se encuentren en la respectiva cola para este CPU, por lo que si la misma esta vacía se ejecutara la IDLE y en caso contrario la primera que contenga.
 
-Si la tarea que se estaba ejecutando no termin\'o su ejecuci\'on o se bloqueo, se deber\'a encolar en la cola del \emph{cpu} pasado por parametro.
-
-Si todav\'ia no asign\'e una tarea actual para el mismo, le asigno la primera de la cola d\'andole todo el quantum disponible para el n\'ucleo \emph{cpu}. (Si la cola se encontraba vac\'ia al llamar la funci\'on next() y la tarea ejecut\'andose no hab\'ia conclu\'ido se la encolar\'a para luego volver a asign\'arsela al n\'ucleo).\\
- 
-\textcolor{red}{ Tampoco implementan la función unblock()} 
- 
 \bigskip 
  
 \subsubsection{An\'alisis bajo m\'etricas} 
