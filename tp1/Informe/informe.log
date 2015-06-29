@@ -1042,12 +1042,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 289--290
 
  []
 
-<imagenes/ej4/eje3.png, id=155, 1030.85126pt x 187.70125pt>
+<imagenes/ej4/eje3.png, id=155, 1030.85126pt x 217.81375pt>
 File: imagenes/ej4/eje3.png Graphic file (type png)
 
 <use imagenes/ej4/eje3.png>
 Package pdftex.def Info: imagenes/ej4/eje3.png used on input line 295.
-(pdftex.def)             Requested size: 455.24329pt x 82.8924pt.
+(pdftex.def)             Requested size: 455.24329pt x 96.19063pt.
 
 Overfull \hbox (14.9992pt too wide) in paragraph at lines 295--296
 [][] 
@@ -2382,12 +2382,12 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 973.
  ) 
 Here is how much of TeX's memory you used:
- 6865 strings out of 493304
- 99626 string characters out of 6139872
- 191305 words of memory out of 5000000
- 10101 multiletter control sequences out of 15000+600000
+ 6865 strings out of 494925
+ 99626 string characters out of 6178544
+ 187309 words of memory out of 5000000
+ 9867 multiletter control sequences out of 15000+600000
  28882 words of font info for 49 fonts, out of 8000000 for 9000
- 957 hyphenation exceptions out of 8191
+ 62 hyphenation exceptions out of 8191
  31i,13n,43p,729b,475s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/share/texlive/texmf-
@@ -2400,7 +2400,7 @@ onts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
 pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
 usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/sh
 are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on informe.pdf (29 pages, 999891 bytes).
+Output written on informe.pdf (29 pages, 1017427 bytes).
 PDF statistics:
  368 PDF objects out of 1000 (max. 8388607)
  283 compressed objects within 3 object streams
