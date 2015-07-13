@@ -357,9 +357,12 @@ bool es_ficha_valida_en_palabra(const Casillero& ficha, const list<Casillero>& p
     }
 
     // si el casillero está ocupado, tampoco es válida
+    rwlockTablero[ficha.fila][ficha.columna].rlock();
     if (tablero_letras[ficha.fila][ficha.columna] != VACIO) {
+        rwlockTablero[ficha.fila][ficha.columna].runlock();
         return false;
     }
+    rwlockTablero[ficha.fila][ficha.columna].runlock();
 
     if (palabra_actual.size() > 0) {
         // no es la primera letra de la palabra, ya hay fichas colocadas para esta palabra
@@ -379,12 +382,12 @@ bool es_ficha_valida_en_palabra(const Casillero& ficha, const list<Casillero>& p
             int paso = distancia_horizontal / abs(distancia_horizontal);
             for (unsigned int columna = mas_distante.columna; columna != ficha.columna; columna += paso) {
                 // el casillero DEBE estar ocupado en el tablero de palabras
-                rwlockTablero[ficha.fila][columna].wlock();
+                rwlockTablero[ficha.fila][columna].rlock();
                 if (!(puso_letra_en(ficha.fila, columna, palabra_actual)) && tablero_palabras[ficha.fila][columna] == VACIO) {
-                    rwlockTablero[ficha.fila][columna].wunlock();
+                    rwlockTablero[ficha.fila][columna].runlock();
                     return false;
                 }
-                rwlockTablero[ficha.fila][columna].wunlock();
+                rwlockTablero[ficha.fila][columna].runlock();
             }
 
         } else if (distancia_horizontal == 0) {
@@ -399,12 +402,12 @@ bool es_ficha_valida_en_palabra(const Casillero& ficha, const list<Casillero>& p
             int paso = distancia_vertical / abs(distancia_vertical);
             for (unsigned int fila = mas_distante.fila; fila != ficha.fila; fila += paso) {
                 // el casillero DEBE estar ocupado en el tablero de palabras
-                rwlockTablero[fila][ficha.columna].wlock();
+                rwlockTablero[fila][ficha.columna].rlock();
                 if (!(puso_letra_en(fila, ficha.columna, palabra_actual)) && tablero_palabras[fila][ficha.columna] == VACIO) {
-                    rwlockTablero[fila][ficha.columna].wunlock();
+                    rwlockTablero[fila][ficha.columna].runlock();
                     return false;
                 }
-                rwlockTablero[fila][ficha.columna].wunlock();
+                rwlockTablero[fila][ficha.columna].runlock();
             }
         }
         else {
