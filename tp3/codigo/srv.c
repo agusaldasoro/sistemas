@@ -74,7 +74,7 @@ void servidor(int mi_cliente){
             debug("Mi cliente libera su acceso exclusivo");
             assert(hay_pedido_local == TRUE);
             for (i = 0; i < cant_ranks; i+=2){//para cada servidor
-                if(me_pidieron[i] == TRUE){//si me habia pedido acceso, se lo doy, pues mi cliente ya salio de la seccion critica
+                if(i != mi_rank && me_pidieron[i] == TRUE){//si me habia pedido acceso, se lo doy, pues mi cliente ya salio de la seccion critica
                     MPI_Send(NULL, 0, MPI_INT, i, TAG_PODES_ESCRIBIR, COMM_WORLD);
                 }
                 me_pidieron[i] = FALSE;//marco que no le debo nada
@@ -101,7 +101,7 @@ void servidor(int mi_cliente){
             debug("Mi cliente avisa que terminó");
             listo_para_salir = TRUE;//mi cliente se va, yo tambien me ire
             for (i = 0; i < cant_ranks; i+=2){//por cada servidor
-                if(siguen_activos[i] == TRUE)//si sigue activo, le aviso que me voy
+                if(i != mi_rank && siguen_activos[i] == TRUE)//si sigue activo, le aviso que me voy
                     MPI_Send(NULL, 0, MPI_INT, i, TAG_ADIOS, COMM_WORLD);
             }
         }
