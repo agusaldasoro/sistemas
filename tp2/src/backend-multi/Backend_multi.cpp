@@ -153,9 +153,9 @@ void atendedor_de_jugador(int* socket_fd) {
             }
             // ficha contiene la nueva letra a colocar
             // verificar si es una posición válida del tablero
+            rwlockTablero[ficha.fila][ficha.columna].wlock();
             if (es_ficha_valida_en_palabra(ficha, palabra_actual)) {
                 palabra_actual.push_back(ficha);
-                rwlockTablero[ficha.fila][ficha.columna].wlock();
                 tablero_letras[ficha.fila][ficha.columna] = ficha.letra;
                 rwlockTablero[ficha.fila][ficha.columna].wunlock();
                 // OK
@@ -165,6 +165,7 @@ void atendedor_de_jugador(int* socket_fd) {
                 }
             }
             else {
+                rwlockTablero[ficha.fila][ficha.columna].wunlock();
                 quitar_letras(palabra_actual);
                 // ERROR
                 if (enviar_error(sockAUX) != 0) {
